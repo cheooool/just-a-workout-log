@@ -2,6 +2,11 @@ import { SECRET } from '../config';
 import { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 
+export interface CustomRequest extends Request {
+  user: {
+    userId: string;
+  };
+}
 export const isLoggedIn = async (
   req: Request,
   res: Response,
@@ -9,30 +14,27 @@ export const isLoggedIn = async (
 ) => {
   try {
     // 인증 헤더 확인
-    if (req.headers.authorization) {
-      const token = req.headers.authorization.split(' ')[1];
+    const token = req.headers?.authorization?.split(' ')[1] || '';
 
-      if (!token) {
-        res.status(400).json({
-          errorMessage: '잘못된 인증 헤더입니다.',
-        });
-      }
-
-      const payload = await jwt.verify(token, SECRET);
-      if (!payload) {
-        res.status(400).json({
-          errorMessage: '토큰 인증에 실패했습니다.',
-        });
-      }
-
-      res.locals.jwtPayload = payload;
-      next();
-    } else {
-      res.status(400).json({
-        errorMessage: '인증 헤더가 없습니다.',
+    if (!token) {
+      res.status(401).json({
+        errorMessage: '승인 거부됨. 토큰이 없습니다.',
       });
     }
+
+    const payload = (await jwt.verify(token, SECRET)) as {
+      userId: string;
+    };
+    if (!payload) {
+      res.status(401).json({
+        errorMessage: '토큰이 유효하지 않습니다.',
+      });
+    }
+
+    (req as CustomRequest).user = payload;
+
+    next();
   } catch (error) {
-    res.status(400).json({ error });
+    res.status(500).json({ error, errorMessage: '서버 에러' });
   }
 };

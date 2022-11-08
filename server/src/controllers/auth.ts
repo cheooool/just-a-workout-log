@@ -40,7 +40,7 @@ export const signIn = async (
       if (result) {
         const token = await jwt.sign(
           {
-            username: user.username,
+            userId: user._id,
           },
           SECRET
         );
