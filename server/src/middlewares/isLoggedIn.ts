@@ -17,7 +17,7 @@ export const isLoggedIn = async (
     const token = req.headers?.authorization?.split(' ')[1] || '';
 
     if (!token) {
-      res.status(401).json({
+      return res.status(401).json({
         errorMessage: '승인 거부됨. 토큰이 없습니다.',
       });
     }
@@ -26,7 +26,7 @@ export const isLoggedIn = async (
       userId: string;
     };
     if (!payload) {
-      res.status(401).json({
+      return res.status(401).json({
         errorMessage: '토큰이 유효하지 않습니다.',
       });
     }
@@ -35,6 +35,6 @@ export const isLoggedIn = async (
 
     next();
   } catch (error) {
-    res.status(500).json({ error, errorMessage: '서버 에러' });
+    return res.status(500).json({ error, errorMessage: '서버 에러' });
   }
 };
