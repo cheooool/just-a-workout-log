@@ -6,9 +6,11 @@ import {
   updateExercise,
   createExercise,
 } from '../controllers/exercies';
+import { isLoggedIn } from '../middlewares/isLoggedIn';
 
 const router: Router = express.Router();
 
+router.use(isLoggedIn);
 router.get('/exercises', getExercises);
 router.post('/exercises', createExercise);
 router.get('/exercises/:id', getExerciseById);

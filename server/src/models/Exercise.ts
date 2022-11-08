@@ -1,6 +1,7 @@
-import mongoose from 'mongoose';
+import mongoose, { Schema, Types } from 'mongoose';
 
 export interface IExercise {
+  userId: Types.ObjectId;
   // 운동 타입 (웨이트, 맨몸, 유산소)
   exerciseType: string;
   // 운동 부위
@@ -15,6 +16,12 @@ export interface IExercise {
 }
 
 const ExerciseSchema = new mongoose.Schema<IExercise>({
+  userId: {
+    type: Schema.Types.ObjectId,
+    ref: 'user',
+    required: true,
+    index: true,
+  },
   exerciseType: {
     type: String,
     default: '',

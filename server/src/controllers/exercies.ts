@@ -1,12 +1,17 @@
 import { Request, Response } from 'express';
+import { CustomRequest } from '../middlewares/isLoggedIn';
 import Exercise, { IExercise } from '../models/Exercise';
 
 export const getExercises = async (req: Request, res: Response) => {
   try {
-    const data = await Exercise.find();
-    res.status(200).json(data);
+    const { user } = req as CustomRequest;
+    const { userId } = user;
+    const data = await Exercise.find({
+      userId,
+    });
+    return res.status(200).json(data);
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       error,
       errorMessage: '오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
     });
@@ -16,29 +21,34 @@ export const getExercises = async (req: Request, res: Response) => {
 export const getExerciseById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    const { user } = req as CustomRequest;
+    const { userId } = user;
 
-    const findExercise = await Exercise.findById(id);
+    const findExercise = await Exercise.find({
+      userId,
+      _id: id,
+    });
 
     if (!findExercise) {
-      res.status(404).json({
+      return res.status(404).json({
         errorMessage: '운동을 찾을 수 없습니다.',
       });
     }
 
-    res.status(200).json(findExercise);
+    return res.status(200).json(findExercise);
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       error,
       errorMessage: '오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
     });
   }
 };
 
-export const createExercise = async (
-  req: Request<never, never, IExercise>,
-  res: Response
-) => {
+export const createExercise = async (req: Request, res: Response) => {
   try {
+    const { user } = req as CustomRequest;
+    const { userId } = user;
+
     const {
       exerciseName,
       recordTypes,
@@ -46,9 +56,10 @@ export const createExercise = async (
       parts = '',
       isAssist = false,
       createdAt = new Date(),
-    } = req.body;
+    }: IExercise = req.body;
 
     const newExercise = await new Exercise({
+      userId,
       exerciseName,
       recordTypes,
       exerciseType,
@@ -59,24 +70,26 @@ export const createExercise = async (
 
     await newExercise.save();
 
-    res.status(201).json(newExercise);
+    return res.status(201).json(newExercise);
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       error,
       errorMessage: '운동 생성 요청에 실패했습니다. 잠시 후 다시 시도해주세요.',
     });
   }
 };
 
-export const updateExercise = async (
-  req: Request<never, never, Partial<IExercise>>,
-  res: Response
-) => {
+export const updateExercise = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    const { user } = req as CustomRequest;
+    const { userId } = user;
 
-    const updatedExercise = await Exercise.findByIdAndUpdate(
-      id,
+    const updatedExercise = await Exercise.findOneAndUpdate(
+      {
+        userId,
+        _id: id,
+      },
       {
         ...req.body,
       },
@@ -87,14 +100,14 @@ export const updateExercise = async (
     );
 
     if (!updatedExercise) {
-      res.status(404).json({
+      return res.status(404).json({
         errorMessage: '운동을 찾을 수 없습니다.',
       });
     }
 
-    res.status(200).json(updatedExercise);
+    return res.status(200).json(updatedExercise);
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       error,
       errorMessage: '운동 수정 요청에 실패했습니다. 잠시 후 다시 시도해주세요.',
     });
@@ -105,19 +118,25 @@ export const deleteExercise = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const findExercise = await Exercise.findByIdAndDelete(id);
+    const { user } = req as CustomRequest;
+    const { userId } = user;
+
+    const findExercise = await Exercise.findOneAndDelete({
+      userId,
+      _id: id,
+    });
 
     if (!findExercise) {
-      res.status(404).json({
+      return res.status(404).json({
         errorMessage: '운동을 찾을 수 없습니다.',
       });
     }
 
-    res.status(200).json({
+    return res.status(200).json({
       message: '운동이 삭제되었습니다.',
     });
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       error,
       errorMessage: '운동 삭제 요청에 실패했습니다. 잠시 후 다시 시도해주세요.',
     });
