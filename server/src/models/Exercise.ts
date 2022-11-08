@@ -14,7 +14,7 @@ export interface IExercise {
   createdAt?: Date;
 }
 
-const ExerciseScheme = new mongoose.Schema<IExercise>({
+const ExerciseSchema = new mongoose.Schema<IExercise>({
   exerciseType: {
     type: String,
     default: '',
@@ -44,4 +44,4 @@ const ExerciseScheme = new mongoose.Schema<IExercise>({
   },
 });
 
-export default mongoose.model('exercises', ExerciseScheme);
+export default mongoose.model('exercises', ExerciseSchema);
