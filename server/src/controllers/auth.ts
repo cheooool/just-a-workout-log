@@ -1,14 +1,8 @@
-import path from 'path';
-import dotenv from 'dotenv';
+import { SECRET } from '../config';
 import { Request, Response } from 'express';
 import UserModel, { IUser } from '../models/User';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-
-dotenv.config({ path: path.resolve(`.env.${process.env.NODE_ENV}`) });
-
-// jwt SECRET 키
-const { SECRET = 'SECRET' } = process.env;
 
 /**
  * 회원 가입

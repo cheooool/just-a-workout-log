@@ -1,17 +1,12 @@
 import express, { Express, Request, Response } from 'express';
 import mongoose from 'mongoose';
 
-import path from 'path';
-import dotenv from 'dotenv';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import morgan from 'morgan';
+import { PORT, API_URL, DATABASE_URL } from './config';
 
-import authRoutes from './routes/auth';
-
-dotenv.config({ path: path.resolve(`.env.${process.env.NODE_ENV}`) });
-const PORT = process.env.PORT || 8080;
-const DATABASE_URL = process.env.DATABASE_URL || '';
+import routes from './routes';
 
 const app: Express = express();
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -27,7 +22,8 @@ if (process.env.NODE_ENV === 'production') {
 app.get('/', (req: Request, res: Response) => {
   res.send('운동 기록 API Server.');
 });
-app.use('/api/v1', authRoutes);
+
+app.use(`${API_URL}`, routes);
 
 mongoose.connect(DATABASE_URL, () => {
   app.listen(PORT, () => {

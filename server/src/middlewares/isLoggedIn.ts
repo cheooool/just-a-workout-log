@@ -1,11 +1,6 @@
-import path from 'path';
-import dotenv from 'dotenv';
+import { SECRET } from '../config';
 import { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
-
-dotenv.config({ path: path.resolve(`.env.${process.env.NODE_ENV}`) });
-
-const { SECRET = 'SECRET' } = process.env;
 
 export const isLoggedIn = async (
   req: Request,
