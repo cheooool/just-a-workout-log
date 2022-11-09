@@ -12,15 +12,18 @@ export const signUp = async (
   res: Response
 ) => {
   try {
-    req.body.password = await bcrypt.hash(req.body.password, 10);
+    const { username, password } = req.body;
+    const bcryptPassword = await bcrypt.hash(password, 10);
 
     // 유저 생성
-    const user = await new UserModel(req.body);
+    const user = await new UserModel({
+      username,
+      password: bcryptPassword,
+    });
     await user.save();
 
     res.json(user);
   } catch (error) {
-    console.log(error);
     res.status(400).json({ error });
   }
 };

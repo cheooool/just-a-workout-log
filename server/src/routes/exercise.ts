@@ -10,11 +10,10 @@ import { isLoggedIn } from '../middlewares/isLoggedIn';
 
 const router: Router = express.Router();
 
-router.use(isLoggedIn);
-router.get('/exercises', getExercises);
-router.post('/exercises', createExercise);
-router.get('/exercises/:id', getExerciseById);
-router.put('/exercises/:id', updateExercise);
-router.delete('/exercises/:id', deleteExercise);
+router.get('/', isLoggedIn, getExercises);
+router.post('/', isLoggedIn, createExercise);
+router.get('/:id', isLoggedIn, getExerciseById);
+router.put('/:id', isLoggedIn, updateExercise);
+router.delete('/:id', isLoggedIn, deleteExercise);
 
 export default router;
