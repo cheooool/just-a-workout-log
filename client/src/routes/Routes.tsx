@@ -1,0 +1,43 @@
+import { lazy, Suspense } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import AuthGuard from './AuthGuard';
+
+const Home = lazy(() => import('../pages/Home'));
+const SignUp = lazy(() => import('../pages/SignUp'));
+const SignIn = lazy(() => import('../pages/SignIn'));
+
+const RootRoutes = () => {
+  return (
+    <Routes>
+      <Route
+        path="/"
+        element={
+          <Suspense fallback={<div>loading...</div>}>
+            <AuthGuard>
+              <Home />
+            </AuthGuard>
+          </Suspense>
+        }
+      />
+      <Route
+        path="/signup"
+        element={
+          <Suspense fallback={<div>loading...</div>}>
+            <SignUp />
+          </Suspense>
+        }
+      />
+      <Route
+        path="/signin"
+        element={
+          <Suspense fallback={<div>loading...</div>}>
+            <SignIn />
+          </Suspense>
+        }
+      />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
+};
+
+export default RootRoutes;
