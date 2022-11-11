@@ -1,9 +1,14 @@
 import React, { useCallback, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Form, Input, Button } from 'antd';
 
 import AuthService from '../services/AuthService';
+import useGuard from '../hooks/useGuard';
 
 const Login = () => {
+  // 토큰 있을 경우 홈으로
+  useGuard();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState<{
     username: string;
     password: string;
@@ -36,13 +41,17 @@ const Login = () => {
       });
 
       // 로그인 성공 토큰
-      console.log(response.data.token);
+      AuthService.setToken(response.data.token);
+      // Home으로 경로 이동
+      navigate('/', {
+        replace: true,
+      });
     } catch (error) {
       console.log(error);
     } finally {
       setIsSubmitting(false);
     }
-  }, [formData]);
+  }, [formData, navigate]);
 
   return (
     <div className="max-w-[320px] mx-auto">

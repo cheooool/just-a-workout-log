@@ -1,9 +1,14 @@
 import React, { useCallback, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Form, Input, Button } from 'antd';
 
 import AuthService from '../services/AuthService';
+import useGuard from '../hooks/useGuard';
 
 const Register = () => {
+  // 토큰 있을 경우 홈으로
+  useGuard();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState<{
     username: string;
     password: string;
@@ -43,12 +48,15 @@ const Register = () => {
       });
 
       // 회원 가입 성공
+      navigate('/signin', {
+        replace: true,
+      });
     } catch (error) {
       console.log(error);
     } finally {
       setIsSubmitting(false);
     }
-  }, [formData]);
+  }, [formData, navigate]);
 
   return (
     <div className="max-w-[320px] mx-auto">
