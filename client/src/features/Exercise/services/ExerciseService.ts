@@ -1,5 +1,10 @@
 import http from '../../../lib/http-common';
 
+export const EXERCISE_TYPE_DATA = {
+  '0': '웨이트',
+  '1': '맨몸운동',
+};
+
 export type ExerciseDataType = {
   exerciseName: string;
   exerciseType: '0' | '1' | null; // 웨이트, 맨몸운동
