@@ -8,7 +8,7 @@ export const getExercises = async (req: Request, res: Response) => {
     const { userId } = user;
     const data = await Exercise.find({
       userId,
-    });
+    }).sort({ createdAt: -1 });
     return res.status(200).json(data);
   } catch (error) {
     return res.status(500).json({
