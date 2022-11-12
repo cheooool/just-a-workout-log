@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
-import AddExercise from '../../features/Exercise/components/AddExercise';
-import ExerciseList from '../../features/Exercise/components/ExerciseList';
+import AddExercise from '../../features/exercise/components/AddExercise';
+import ExerciseList from '../../features/exercise/components/ExerciseList';
 import PageLayout from '../../layouts/PageLayout';
 
 const Exercises = () => {

@@ -1,4 +1,4 @@
-import http from '../../../../lib/http-common';
+import http from '../../../lib/http-common';
 export type SignData = {
   username: string;
   password: string;
