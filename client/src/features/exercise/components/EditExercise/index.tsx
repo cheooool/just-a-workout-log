@@ -1,67 +1,71 @@
-import { Button, Modal, ModalProps } from 'antd';
-import { useCallback, useState } from 'react';
+import { Button, Form, Modal, ModalProps } from 'antd';
+import { useCallback, useEffect, useState } from 'react';
+import { useRecoilState } from 'recoil';
+import { selectExerciseState } from '../../recoil/exercise.recoil';
 
-import ExerciseService, {
-  ExerciseDataType,
-} from '../../services/ExerciseService';
-import ExerciseForm, { ExerciseFormCustomProps } from '../ExerciseForm';
+import useExerciseModalWithRecoil from '../../hooks/useExerciseModalWithRecoil';
+import useExerciseServiceWithRecoil from '../../hooks/useExerciseServiceWithRecoil';
 
-export type EditExerciseCustomProps = {
-  exerciseData?: ExerciseFormCustomProps['exerciseData'];
-  onCloseModal?: () => void;
-};
+import { ExerciseDataType } from '../../services/ExerciseService';
+import ExerciseForm from '../ExerciseForm';
 
-export type EditExerciseProps = EditExerciseCustomProps & ModalProps;
-
-const EditExercise: React.FC<EditExerciseProps> = ({
-  exerciseData,
-  onCloseModal,
-  ...props
-}) => {
+export type EditExerciseProps = ModalProps;
+const EditExercise: React.FC<EditExerciseProps> = ({ ...props }) => {
+  const [form] = Form.useForm();
+  const [selectExercise, setSelectExercise] =
+    useRecoilState(selectExerciseState);
+  const { showing, hideModal } = useExerciseModalWithRecoil();
+  const { editExercise } = useExerciseServiceWithRecoil();
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
-  // 모달 닫기 이벤트
-  const handleCloseModal = useCallback(() => {
-    if (typeof onCloseModal === 'function') {
-      onCloseModal();
+  // Effect Form 기본 값 변경
+  useEffect(() => {
+    if (selectExercise) {
+      form.setFieldsValue(selectExercise);
     }
-  }, [onCloseModal]);
+  }, [form, selectExercise]);
 
   // 폼 데이터 전송
   const handleSubmit = useCallback(
     async ({ formData }: { formData: ExerciseDataType }) => {
       try {
+        if (!selectExercise?._id) {
+          throw new Error('운동 Id가 없습니다.');
+        }
         setIsSubmitting(true);
-        const updatedData = {
-          ...exerciseData,
-          ...formData,
-        };
 
-        const response = await ExerciseService.updateById({
-          id: updatedData._id ?? '',
-          data: formData,
+        editExercise({
+          id: selectExercise._id,
+          updateData: {
+            ...selectExercise,
+            ...formData,
+          },
         });
-        // 수정 완료
-        console.log(response);
 
-        handleCloseModal();
+        // 초기화
+        setSelectExercise(null);
+
+        // 모달 닫기
+        hideModal();
       } catch (error) {
         console.log(error);
       } finally {
         setIsSubmitting(false);
       }
     },
-    [exerciseData, handleCloseModal]
+    [selectExercise, editExercise, setSelectExercise, hideModal]
   );
 
   return (
     <Modal
       {...props}
+      className="max-w-[80%]"
       title="운동 정보 수정"
       centered
-      className="max-w-[80%]"
+      open={showing === 'edit'}
+      onCancel={hideModal}
       footer={[
-        <Button key="back" onClick={handleCloseModal} disabled={isSubmitting}>
+        <Button key="back" onClick={hideModal} disabled={isSubmitting}>
           취소
         </Button>,
         <Button
@@ -77,8 +81,9 @@ const EditExercise: React.FC<EditExerciseProps> = ({
       ]}
     >
       <ExerciseForm
+        form={form}
+        exerciseData={selectExercise}
         id="exerciseForm"
-        exerciseData={exerciseData}
         onSubmit={handleSubmit}
         disabled={isSubmitting}
       />

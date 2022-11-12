@@ -1,35 +1,22 @@
 import { Button } from 'antd';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
+import { useSetRecoilState } from 'recoil';
+import { selectExerciseState } from '../../recoil/exercise.recoil';
+
+import useExerciseServiceWithRecoil from '../../hooks/useExerciseServiceWithRecoil';
+
 import AddItem from '../../../../components/AddItem';
-import ExerciseService, {
-  ExerciseDataType,
-} from '../../services/ExerciseService';
-import EditExercise from '../EditExercise';
 import Exercise from '../Exercise';
-import { ExerciseFormCustomProps } from '../ExerciseForm';
+import useExerciseModalWithRecoil from '../../hooks/useExerciseModalWithRecoil';
 
 export type ListModeType = 'edit' | null;
 
 const ExerciseList = () => {
-  const [list, setList] = useState<ExerciseDataType[]>([]);
+  const setSelectExercise = useSetRecoilState(selectExerciseState);
+  const { deleteExerciseById } = useExerciseServiceWithRecoil();
+  const { showModal } = useExerciseModalWithRecoil();
+  const { exerciseList } = useExerciseServiceWithRecoil();
   const [mode, setMode] = useState<ListModeType>(null);
-  const [editOpen, setEditOpen] = useState<boolean>(false);
-  const [editData, setEditData] =
-    useState<ExerciseFormCustomProps['exerciseData']>(null);
-
-  useEffect(() => {
-    const getAllExercise = async () => {
-      try {
-        const response = await ExerciseService.getAll();
-        const data: ExerciseDataType[] = response.data;
-
-        setList(data);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    getAllExercise();
-  }, []);
 
   // 모드 변경
   const handleChangeMode = useCallback((mode: ListModeType) => {
@@ -46,35 +33,18 @@ const ExerciseList = () => {
     handleChangeMode(null);
   }, [handleChangeMode]);
 
-  // Edit Modal 열기
-  const handleOpenEditModal = useCallback(
-    ({ editData }: { editData: ExerciseDataType }) => {
-      setEditData(editData);
-      setEditOpen(true);
-    },
-    []
-  );
+  if (exerciseList.state === 'hasError') {
+    return <div>Error</div>;
+  }
+  if (exerciseList.state === 'loading') {
+    return <div>운동 목록 불러오는 중...</div>;
+  }
 
-  // Edit Modal 닫기
-  const handleCloseEditModal = useCallback(() => {
-    setEditData(null);
-    setEditOpen(false);
-  }, []);
-
-  if (!list.length) {
+  if (!exerciseList.contents.length) {
     return <span>운동 목록이 없습니다.</span>;
   }
   return (
     <div>
-      {editOpen && (
-        <EditExercise
-          open={editOpen}
-          exerciseData={editData}
-          onCancel={handleCloseEditModal}
-          onCloseModal={handleCloseEditModal}
-        />
-      )}
-
       <div className="flex justify-between items-center border-0 border-y border-gray-300 border-solid">
         {mode === 'edit' ? (
           <>
@@ -94,11 +64,9 @@ const ExerciseList = () => {
           </>
         )}
       </div>
-
-      {mode !== 'edit' && <AddItem text="새로운 운동 추가..." />}
-
+      <AddItem text="새로운 운동 추가..." onClick={() => showModal('add')} />
       <ul className="list-none m-0 p-0">
-        {list.map((exercise, index) => {
+        {exerciseList.contents.map((exercise, index) => {
           const { exerciseName, exerciseType, parts, recordTypes, isAssist } =
             exercise;
           return (
@@ -116,13 +84,27 @@ const ExerciseList = () => {
               />
               <Button
                 type="text"
-                onClick={() =>
-                  handleOpenEditModal({
-                    editData: exercise,
-                  })
-                }
+                onClick={() => {
+                  setSelectExercise(exercise);
+                  showModal('edit');
+                }}
               >
                 수정
+              </Button>
+              <Button
+                type="text"
+                danger
+                onClick={() => {
+                  if (
+                    window.confirm(`${exerciseName} 항목을 삭제하시겠습니까?`)
+                  ) {
+                    deleteExerciseById({
+                      id: exercise._id as string,
+                    });
+                  }
+                }}
+              >
+                삭제
               </Button>
             </li>
           );

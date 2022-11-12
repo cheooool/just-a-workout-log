@@ -25,7 +25,7 @@ const Exercise: React.FC<ExerciseProps> = ({
         {/* 운동 정보 */}
         <div className="grow basis-0 pr-2">
           <div className="pb-2">
-            <span className="text-xl font-bold">{exerciseName}</span>
+            <span className="text-xl font-bold break-all">{exerciseName}</span>
           </div>
           <div>
             <span>{exerciseType && EXERCISE_TYPE_DATA[exerciseType]}</span>
