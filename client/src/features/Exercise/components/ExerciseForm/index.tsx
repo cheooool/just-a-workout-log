@@ -1,20 +1,21 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback } from 'react';
 import {
   Form,
   Input,
   Radio,
   Checkbox,
   Select,
-  RadioChangeEvent,
   FormProps,
   FormItemProps,
 } from 'antd';
 import classnames from 'classnames';
-import { ExerciseDataType } from '../../services/ExerciseService';
-import { CheckboxValueType } from 'antd/lib/checkbox/Group';
+import {
+  ExerciseDataType,
+  EXERCISE_DEFAULT_DATA,
+} from '../../services/ExerciseService';
 
 export type ExerciseFormCustomProps = {
-  exerciseData?: ExerciseDataType;
+  exerciseData?: ExerciseDataType | null;
   onSubmit?: ({ formData }: { formData: ExerciseDataType }) => void;
 };
 export type ExerciseFormAttributes = FormProps;
@@ -27,59 +28,9 @@ const ExerciseForm: React.FC<ExerciseFormProps> = ({
   onSubmit,
   ...props
 }) => {
-  const [formData, setFormData] = useState<ExerciseDataType>(
-    exerciseData ?? {
-      exerciseName: '',
-      exerciseType: null,
-      parts: '',
-      recordTypes: ['weight', 'reps'],
-      isAssist: false,
-    }
-  );
-
-  // 운동 타입 이벤트
-  const handleChangeExerciseType = useCallback((e: RadioChangeEvent) => {
-    const { value } = e.target;
-    setFormData((state) => ({
-      ...state,
-      exerciseType: value,
-    }));
-  }, []);
-
-  // 운동명 input 이벤트
-  const handleChangeInput = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const { name, value } = e.target;
-      setFormData((state) => ({
-        ...state,
-        [name]: value,
-      }));
-    },
-    []
-  );
-
-  // 기록 정보 체크박스 이벤트
-  const handleChangeCheckbox = useCallback(
-    (checkedValues: CheckboxValueType[]) => {
-      setFormData((state) => ({
-        ...state,
-        recordTypes: [...checkedValues] as ExerciseDataType['recordTypes'],
-      }));
-    },
-    []
-  );
-
-  // 운동 부위 셀렉트 이벤트
-  const handleChangeSelect = useCallback((value: string) => {
-    setFormData((state) => ({
-      ...state,
-      parts: value,
-    }));
-  }, []);
-
   // 폼 밸리데이션 (임시)
-  const isValid = useCallback(() => {
-    const { exerciseType, exerciseName, parts, recordTypes } = formData;
+  const isValid = useCallback((values: ExerciseDataType) => {
+    const { exerciseType, exerciseName, parts, recordTypes } = values;
     if (!exerciseType) {
       alert('운동 타입을 선택해주세요.');
       return false;
@@ -98,43 +49,53 @@ const ExerciseForm: React.FC<ExerciseFormProps> = ({
     }
 
     return true;
-  }, [formData]);
+  }, []);
 
-  const handleSubmit = useCallback(() => {
-    if (!isValid()) {
-      return false;
-    }
-
-    if (typeof onSubmit === 'function') {
-      onSubmit({ formData });
-    }
-  }, [formData, isValid, onSubmit]);
+  const handleSubmit = useCallback(
+    (values: ExerciseDataType) => {
+      if (!isValid(values)) {
+        return false;
+      }
+      if (typeof onSubmit === 'function') {
+        onSubmit({ formData: values });
+      }
+    },
+    [isValid, onSubmit]
+  );
 
   return (
-    <Form {...props} layout="vertical" onFinish={handleSubmit}>
-      <FormField label="운동 타입" required={true}>
-        <Radio.Group
-          optionType="button"
-          buttonStyle="solid"
-          value={formData.exerciseType}
-          onChange={handleChangeExerciseType}
-        >
+    <Form
+      {...props}
+      layout="vertical"
+      initialValues={exerciseData ?? EXERCISE_DEFAULT_DATA}
+      onFinish={handleSubmit}
+    >
+      <FormField
+        label="운동 타입"
+        name="exerciseType"
+        valuePropName="value"
+        required={true}
+      >
+        <Radio.Group optionType="button" buttonStyle="solid">
           <Radio.Button value="0">웨이트</Radio.Button>
           <Radio.Button value="1">맨몸운동</Radio.Button>
         </Radio.Group>
       </FormField>
-      <FormField label="운동명" required={true}>
-        <Input
-          name="exerciseName"
-          placeholder="운동명 ex)데드리프트"
-          onChange={handleChangeInput}
-        />
+      <FormField
+        label="운동명"
+        name="exerciseName"
+        valuePropName="value"
+        required={true}
+      >
+        <Input placeholder="운동명 ex)데드리프트" />
       </FormField>
-      <FormField label="운동 부위" required={true}>
-        <Select
-          placeholder="운동 부위를 선택해주세요"
-          onChange={handleChangeSelect}
-        >
+      <FormField
+        label="운동 부위"
+        name="parts"
+        valuePropName="value"
+        required={true}
+      >
+        <Select placeholder="운동 부위를 선택해주세요">
           <Select.Option value="가슴">가슴</Select.Option>
           <Select.Option value="등">등</Select.Option>
           <Select.Option value="다리">다리</Select.Option>
@@ -142,11 +103,14 @@ const ExerciseForm: React.FC<ExerciseFormProps> = ({
           <Select.Option value="팔">팔</Select.Option>
         </Select>
       </FormField>
-      <FormField label="기록 데이터" required={true} className="mb-0">
-        <Checkbox.Group
-          value={formData.recordTypes}
-          onChange={handleChangeCheckbox}
-        >
+      <FormField
+        label="기록 데이터"
+        name="recordTypes"
+        valuePropName="value"
+        required={true}
+        className="mb-0"
+      >
+        <Checkbox.Group>
           <Checkbox name="recordTypes" value="weight">
             무게
           </Checkbox>
