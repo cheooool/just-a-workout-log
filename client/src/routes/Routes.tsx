@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import AuthGuard from './AuthGuard';
 
 const Home = lazy(() => import('../pages/Home'));
+const Exercises = lazy(() => import('../pages/Exercises'));
 const SignUp = lazy(() => import('../pages/SignUp'));
 const SignIn = lazy(() => import('../pages/SignIn'));
 
@@ -15,6 +16,16 @@ const RootRoutes = () => {
           <Suspense fallback={<div>loading...</div>}>
             <AuthGuard>
               <Home />
+            </AuthGuard>
+          </Suspense>
+        }
+      />
+      <Route
+        path="/exercises"
+        element={
+          <Suspense fallback={<div>loading...</div>}>
+            <AuthGuard>
+              <Exercises />
             </AuthGuard>
           </Suspense>
         }
