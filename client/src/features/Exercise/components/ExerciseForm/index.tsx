@@ -9,6 +9,7 @@ import {
   FormProps,
   FormItemProps,
 } from 'antd';
+import classnames from 'classnames';
 import { ExerciseDataType } from '../../services/ExerciseService';
 import { CheckboxValueType } from 'antd/lib/checkbox/Group';
 
@@ -141,7 +142,7 @@ const ExerciseForm: React.FC<ExerciseFormProps> = ({
           <Select.Option value="팔">팔</Select.Option>
         </Select>
       </FormField>
-      <FormField label="기록 데이터" required={true}>
+      <FormField label="기록 데이터" required={true} className="mb-0">
         <Checkbox.Group
           value={formData.recordTypes}
           onChange={handleChangeCheckbox}
@@ -160,7 +161,7 @@ const ExerciseForm: React.FC<ExerciseFormProps> = ({
 
 const FormField: React.FC<FormItemProps> = ({ children, ...props }) => {
   return (
-    <Form.Item {...props} className="mb-4">
+    <Form.Item {...props} className={classnames('mb-4', props.className)}>
       {children}
     </Form.Item>
   );
