@@ -59,6 +59,7 @@ const EditExercise: React.FC<EditExerciseProps> = ({
       {...props}
       title="운동 정보 수정"
       centered
+      className="max-w-[80%]"
       footer={[
         <Button key="back" onClick={handleCloseModal} disabled={isSubmitting}>
           취소

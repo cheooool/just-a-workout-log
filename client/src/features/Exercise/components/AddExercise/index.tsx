@@ -48,6 +48,7 @@ const AddExercise: React.FC<AddExerciseProps> = ({
       {...props}
       title="운동 추가"
       centered
+      className="max-w-[80%]"
       footer={[
         <Button key="back" onClick={handleCloseModal} disabled={isSubmitting}>
           취소
