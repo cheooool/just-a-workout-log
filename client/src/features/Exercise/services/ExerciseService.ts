@@ -1,14 +1,23 @@
 import http from '../../../lib/http-common';
 
+export const EXERCISE_DEFAULT_DATA: ExerciseDataType = {
+  exerciseName: '',
+  exerciseType: null,
+  parts: null,
+  recordTypes: ['weight', 'reps'],
+  isAssist: false,
+};
+
 export const EXERCISE_TYPE_DATA = {
   '0': '웨이트',
   '1': '맨몸운동',
 };
 
 export type ExerciseDataType = {
+  _id?: string;
   exerciseName: string;
   exerciseType: '0' | '1' | null; // 웨이트, 맨몸운동
-  parts: string;
+  parts: string | null;
   recordTypes: ('weight' | 'reps')[];
   isAssist: boolean;
 };
