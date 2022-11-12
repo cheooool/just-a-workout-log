@@ -20,7 +20,7 @@ const NavButton: React.FC<
 };
 const Nav = () => {
   return (
-    <div className="fixed bottom-0 left-0 w-full border-0 border-solid border-t">
+    <div className="fixed bottom-0 left-0 w-full border-0 border-solid border-t bg-white z-10">
       <nav className="flex h-12">
         <NavButton to="/">
           <BiNotepad size={24} title="운동 기록" color="#000" />
