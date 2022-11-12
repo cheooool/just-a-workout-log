@@ -10,6 +10,7 @@ export type AddItemProps = AddItemCustomProps & ButtonProps;
 const AddItem: React.FC<AddItemProps> = ({ text, ...props }) => {
   return (
     <Button
+      {...props}
       type="text"
       className={classnames(
         'flex w-full items-center px-0 py-4 h-auto',
