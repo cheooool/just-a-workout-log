@@ -142,3 +142,26 @@ export const deleteExercise = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const deleteManyExercise = async (req: Request, res: Response) => {
+  try {
+    const { user } = req as CustomRequest;
+    const { userId } = user;
+
+    const { ids } = req.body;
+
+    await Exercise.deleteMany({
+      userId,
+      _id: ids,
+    });
+
+    return res.status(200).json({
+      message: `${ids.length}의 운동이 삭제되었습니다.`,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      error,
+      errorMessage: '운동 삭제 요청에 실패했습니다. 잠시 후 다시 시도해주세요.',
+    });
+  }
+};
