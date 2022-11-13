@@ -1,22 +1,45 @@
-import { Button } from 'antd';
+import { Button, Checkbox } from 'antd';
 import { useCallback, useState } from 'react';
 import { useSetRecoilState } from 'recoil';
-import { selectExerciseState } from '../../recoil/exercise.recoil';
+import { selectEditExerciseState } from '../../recoil/exercise.recoil';
 
 import useExerciseServiceWithRecoil from '../../hooks/useExerciseServiceWithRecoil';
 
 import AddItem from '../../../../components/AddItem';
 import Exercise from '../Exercise';
 import useExerciseModalWithRecoil from '../../hooks/useExerciseModalWithRecoil';
+import { ExerciseDataType } from '../../services/ExerciseService';
 
 export type ListModeType = 'edit' | null;
 
 const ExerciseList = () => {
-  const setSelectExercise = useSetRecoilState(selectExerciseState);
-  const { deleteExerciseById } = useExerciseServiceWithRecoil();
+  const setSelectEditExercise = useSetRecoilState(selectEditExerciseState);
+  const { deleteExerciseById, deleteManyExercise } =
+    useExerciseServiceWithRecoil();
   const { showModal } = useExerciseModalWithRecoil();
   const { exerciseList } = useExerciseServiceWithRecoil();
   const [mode, setMode] = useState<ListModeType>(null);
+
+  const [selectedList, setSelectedList] = useState<ExerciseDataType[]>([]);
+
+  const handleSelectedItem = useCallback(
+    (exercise: ExerciseDataType) => {
+      // 리스트에 담겨 있지 않을 경우 추가
+      if (!selectedList.some((item) => item._id === exercise._id)) {
+        setSelectedList((state) => [...state, exercise]);
+      } else {
+        // 담겨 있을 경우 제거
+        const findIndex = selectedList.findIndex(
+          (item) => item._id === exercise._id
+        );
+        setSelectedList((state) => [
+          ...state.slice(0, findIndex),
+          ...state.slice(findIndex + 1),
+        ]);
+      }
+    },
+    [selectedList]
+  );
 
   // 모드 변경
   const handleChangeMode = useCallback((mode: ListModeType) => {
@@ -40,9 +63,6 @@ const ExerciseList = () => {
     return <div>운동 목록 불러오는 중...</div>;
   }
 
-  if (!exerciseList.contents.length) {
-    return <span>운동 목록이 없습니다.</span>;
-  }
   return (
     <div>
       <div className="flex justify-between items-center border-0 border-y border-gray-300 border-solid">
@@ -64,52 +84,77 @@ const ExerciseList = () => {
           </>
         )}
       </div>
-      <AddItem text="새로운 운동 추가..." onClick={() => showModal('add')} />
-      <ul className="list-none m-0 p-0">
-        {exerciseList.contents.map((exercise, index) => {
-          const { exerciseName, exerciseType, parts, recordTypes, isAssist } =
-            exercise;
-          return (
-            <li
-              key={index}
-              className="flex justify-between items-center py-4 border-0 border-t border-gray-200 border-solid"
-            >
-              <Exercise
-                className="grow"
-                exerciseName={exerciseName}
-                exerciseType={exerciseType}
-                parts={parts}
-                recordTypes={recordTypes}
-                isAssist={isAssist}
-              />
-              <Button
-                type="text"
-                onClick={() => {
-                  setSelectExercise(exercise);
-                  showModal('edit');
-                }}
+      <AddItem
+        text="새로운 운동 추가..."
+        className="py-2"
+        onClick={() => showModal('add')}
+      />
+
+      {selectedList.length > 0 && (
+        <Button
+          type="text"
+          danger
+          onClick={() => deleteManyExercise({ exerciseList: selectedList })}
+        >
+          선택 삭제
+        </Button>
+      )}
+      {!exerciseList.contents.length ? (
+        <p>추가한 운동이 없습니다.</p>
+      ) : (
+        <ul className="list-none m-0 p-0">
+          {exerciseList.contents.map((exercise, index) => {
+            const { exerciseName, exerciseType, parts, recordTypes, isAssist } =
+              exercise;
+            return (
+              <li
+                key={index}
+                className="flex justify-between items-stretch my-1 py-3 border-0 border-t border-gray-200 border-solid"
               >
-                수정
-              </Button>
-              <Button
-                type="text"
-                danger
-                onClick={() => {
-                  if (
-                    window.confirm(`${exerciseName} 항목을 삭제하시겠습니까?`)
-                  ) {
-                    deleteExerciseById({
-                      id: exercise._id as string,
-                    });
-                  }
-                }}
-              >
-                삭제
-              </Button>
-            </li>
-          );
-        })}
-      </ul>
+                <Checkbox
+                  className="px-4"
+                  checked={selectedList.some(
+                    (item) => item._id === exercise._id
+                  )}
+                  onChange={() => handleSelectedItem(exercise)}
+                />
+                <Exercise
+                  className="grow"
+                  exerciseName={exerciseName}
+                  exerciseType={exerciseType}
+                  parts={parts}
+                  recordTypes={recordTypes}
+                  isAssist={isAssist}
+                />
+                <Button
+                  type="text"
+                  onClick={() => {
+                    setSelectEditExercise(exercise);
+                    showModal('edit');
+                  }}
+                >
+                  수정
+                </Button>
+                <Button
+                  type="text"
+                  danger
+                  onClick={() => {
+                    if (
+                      window.confirm(`${exerciseName} 항목을 삭제하시겠습니까?`)
+                    ) {
+                      deleteExerciseById({
+                        id: exercise._id as string,
+                      });
+                    }
+                  }}
+                >
+                  삭제
+                </Button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
     </div>
   );
 };
