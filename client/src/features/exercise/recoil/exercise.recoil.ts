@@ -24,7 +24,7 @@ export const exerciseModalState = atom<'add' | 'edit' | null>({
   default: null,
 });
 
-export const selectExerciseState = atom<ExerciseDataType | null>({
-  key: 'selectExerciseState',
+export const selectEditExerciseState = atom<ExerciseDataType | null>({
+  key: 'selectEditExerciseState',
   default: null,
 });
