@@ -75,11 +75,37 @@ function useExerciseServiceWithRecoil() {
     }
   };
 
+  // 운동 선택 삭제
+  const deleteManyExercise = async ({
+    exerciseList,
+  }: {
+    exerciseList: ExerciseDataType[];
+  }) => {
+    try {
+      const ids = exerciseList.map((exercise) => exercise._id) as string[];
+
+      await ExerciseService.removeMany({
+        ids,
+      });
+
+      setExerciseList((oldExerciseList) => {
+        return [
+          ...oldExerciseList.filter(
+            (exercise) => !ids.includes(exercise._id as string)
+          ),
+        ];
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return {
     exerciseList,
     createExercise,
     editExercise,
     deleteExerciseById,
+    deleteManyExercise,
   };
 }
 export default useExerciseServiceWithRecoil;

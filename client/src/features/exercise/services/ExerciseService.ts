@@ -48,12 +48,21 @@ export const removeById = ({ id }: { id: string }) => {
   return http.delete(`/exercises/${id}`);
 };
 
+export const removeMany = ({ ids }: { ids: string[] }) => {
+  return http.delete(`/exercises`, {
+    data: {
+      ids,
+    },
+  });
+};
+
 const ExerciseService = {
   getAll,
   getById,
   create,
   updateById,
   removeById,
+  removeMany,
 };
 
 export default ExerciseService;
