@@ -16,35 +16,30 @@ const Exercise: React.FC<ExerciseProps> = ({
 }) => {
   return (
     <div {...props}>
-      <div className="flex items-center">
-        {/* 운동 부위 */}
-        <div className="basis-[80px] text-center">
-          <span className="font-bold px-4">{parts}</span>
+      {/* 운동 정보 */}
+      <div className="pr-2">
+        <div className="pb-2">
+          <span className="text-lg font-bold break-all">
+            {parts} {exerciseName}
+          </span>
         </div>
-
-        {/* 운동 정보 */}
-        <div className="grow basis-0 pr-2">
-          <div className="pb-2">
-            <span className="text-xl font-bold break-all">{exerciseName}</span>
-          </div>
-          <div>
-            <span>{exerciseType && EXERCISE_TYPE_DATA[exerciseType]}</span>
-          </div>
-          <div>
-            <span>
-              {recordTypes
-                .reduce((arr: string[], type) => {
-                  if ('weight' === type) {
-                    arr.push('무게');
-                  }
-                  if ('reps' === type) {
-                    arr.push('횟수');
-                  }
-                  return arr;
-                }, [])
-                .join(' x ')}
-            </span>
-          </div>
+        <div>
+          <span>{exerciseType && EXERCISE_TYPE_DATA[exerciseType]}</span>
+        </div>
+        <div>
+          <span>
+            {recordTypes
+              .reduce((arr: string[], type) => {
+                if ('weight' === type) {
+                  arr.push('무게');
+                }
+                if ('reps' === type) {
+                  arr.push('횟수');
+                }
+                return arr;
+              }, [])
+              .join(' x ')}
+          </span>
         </div>
       </div>
     </div>
