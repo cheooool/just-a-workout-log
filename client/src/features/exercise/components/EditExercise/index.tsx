@@ -27,6 +27,11 @@ const EditExercise: React.FC<EditExerciseProps> = ({ ...props }) => {
     }
   }, [form, selectEditExercise]);
 
+  const handleHideModal = useCallback(() => {
+    setSelectEditExercise(null);
+    hideModal();
+  }, [hideModal, setSelectEditExercise]);
+
   // 폼 데이터 전송
   const handleSubmit = useCallback(
     async ({ formData }: { formData: ExerciseDataType }) => {
@@ -44,18 +49,14 @@ const EditExercise: React.FC<EditExerciseProps> = ({ ...props }) => {
           },
         });
 
-        // 초기화
-        setSelectEditExercise(null);
-
-        // 모달 닫기
-        hideModal();
+        handleHideModal();
       } catch (error) {
         console.log(error);
       } finally {
         setIsSubmitting(false);
       }
     },
-    [selectEditExercise, editExercise, setSelectEditExercise, hideModal]
+    [selectEditExercise, editExercise, handleHideModal]
   );
 
   if (!showing) {
@@ -69,9 +70,9 @@ const EditExercise: React.FC<EditExerciseProps> = ({ ...props }) => {
       title="운동 정보 수정"
       centered
       open={showing === 'edit'}
-      onCancel={hideModal}
+      onCancel={handleHideModal}
       footer={[
-        <Button key="back" onClick={hideModal} disabled={isSubmitting}>
+        <Button key="back" onClick={handleHideModal} disabled={isSubmitting}>
           취소
         </Button>,
         <Button
