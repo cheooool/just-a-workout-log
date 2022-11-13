@@ -36,6 +36,10 @@ const AddExerciseModal: React.FC<AddExerciseModalProps> = ({ ...props }) => {
     [form, createExercise, hideModal]
   );
 
+  if (!showing) {
+    return null;
+  }
+
   return (
     <Modal
       {...props}
