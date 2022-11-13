@@ -32,7 +32,6 @@ const ExerciseSchema = new mongoose.Schema<IExercise>({
   },
   exerciseName: {
     type: String,
-    unique: true,
     required: true,
   },
   recordTypes: [
