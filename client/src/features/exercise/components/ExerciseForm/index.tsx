@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback } from 'react';
 import {
   Form,
   Input,
@@ -74,7 +74,12 @@ const ExerciseForm: React.FC<ExerciseFormProps> = ({
         label="운동 타입"
         name="exerciseType"
         valuePropName="value"
-        required={true}
+        rules={[
+          {
+            required: true,
+            message: '운동 타입을 선택해주세요.',
+          },
+        ]}
       >
         <Radio.Group optionType="button" buttonStyle="solid">
           <Radio.Button value="0">웨이트</Radio.Button>
@@ -85,7 +90,12 @@ const ExerciseForm: React.FC<ExerciseFormProps> = ({
         label="운동명"
         name="exerciseName"
         valuePropName="value"
-        required={true}
+        rules={[
+          {
+            required: true,
+            message: '운동명을 입력해주세요.',
+          },
+        ]}
       >
         <Input placeholder="운동명 ex)데드리프트" />
       </FormField>
@@ -93,7 +103,12 @@ const ExerciseForm: React.FC<ExerciseFormProps> = ({
         label="운동 부위"
         name="parts"
         valuePropName="value"
-        required={true}
+        rules={[
+          {
+            required: true,
+            message: '운동 부위를 선택해주세요.',
+          },
+        ]}
       >
         <Select placeholder="운동 부위를 선택해주세요">
           <Select.Option value="가슴">가슴</Select.Option>
@@ -107,7 +122,12 @@ const ExerciseForm: React.FC<ExerciseFormProps> = ({
         label="기록 데이터"
         name="recordTypes"
         valuePropName="value"
-        required={true}
+        rules={[
+          {
+            required: true,
+            message: '기록 데이터를 1개이상 선택해주세요.',
+          },
+        ]}
         className="mb-0"
       >
         <Checkbox.Group>
@@ -125,7 +145,10 @@ const ExerciseForm: React.FC<ExerciseFormProps> = ({
 
 const FormField: React.FC<FormItemProps> = ({ children, ...props }) => {
   return (
-    <Form.Item {...props} className={classnames('mb-4', props.className)}>
+    <Form.Item
+      {...props}
+      className={classnames('mb-3 last:mb-0', props.className)}
+    >
       {children}
     </Form.Item>
   );
