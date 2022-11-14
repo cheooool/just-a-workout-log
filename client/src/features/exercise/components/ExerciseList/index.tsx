@@ -1,159 +1,163 @@
 import { Button, Checkbox } from 'antd';
-import { useCallback, useState } from 'react';
-import { useSetRecoilState } from 'recoil';
-import { selectEditExerciseState } from '../../recoil/exercise.recoil';
+import { useState } from 'react';
 
-import useExerciseServiceWithRecoil from '../../hooks/useExerciseServiceWithRecoil';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  getAllExercisesFn,
+  removeExercisesFn,
+} from '../../../../api/exerciseApi';
+
+import { useRecoilState } from 'recoil';
+import { selectedExercisesState } from '../../recoil/exercise.recoil';
 
 import AddItem from '../../../../components/AddItem';
-import Exercise from '../Exercise';
-import useExerciseModalWithRecoil from '../../hooks/useExerciseModalWithRecoil';
-import { ExerciseDataType } from '../../services/ExerciseService';
+import ExerciseItem from '../ExerciseItem';
+import AddExerciseModal from '../AddExerciseModal';
 
 export type ListModeType = 'edit' | null;
 
 const ExerciseList = () => {
-  const setSelectEditExercise = useSetRecoilState(selectEditExerciseState);
-  const { deleteExerciseById, deleteManyExercise } =
-    useExerciseServiceWithRecoil();
-  const { showModal } = useExerciseModalWithRecoil();
-  const { exerciseList } = useExerciseServiceWithRecoil();
-  const [mode, setMode] = useState<ListModeType>(null);
-
-  const [selectedList, setSelectedList] = useState<ExerciseDataType[]>([]);
-
-  const handleSelectedItem = useCallback(
-    (exercise: ExerciseDataType) => {
-      // 리스트에 담겨 있지 않을 경우 추가
-      if (!selectedList.some((item) => item._id === exercise._id)) {
-        setSelectedList((state) => [...state, exercise]);
-      } else {
-        // 담겨 있을 경우 제거
-        const findIndex = selectedList.findIndex(
-          (item) => item._id === exercise._id
-        );
-        setSelectedList((state) => [
-          ...state.slice(0, findIndex),
-          ...state.slice(findIndex + 1),
-        ]);
-      }
-    },
-    [selectedList]
+  const { isLoading, data: exercises } = useQuery(
+    ['exercises'],
+    () => getAllExercisesFn(),
+    {
+      select: (data) => data.data,
+      onSuccess: () => {
+        console.log('Success exercises query');
+      },
+      onError: () => {
+        console.log('Error exercises query');
+      },
+    }
   );
 
-  // 모드 변경
-  const handleChangeMode = useCallback((mode: ListModeType) => {
-    setMode(mode);
-  }, []);
+  const queryClient = useQueryClient();
+  const { mutate: removeExercises } = useMutation(
+    ({ exercisesIds }: { exercisesIds: string[] }) =>
+      removeExercisesFn({ exercisesIds }),
+    {
+      onMutate: () => {
+        console.log('Mutate remove exercises');
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries(['exercises']);
+        console.log('Success remove exercises');
+        setSelectedExercises([]);
+      },
+      onError: (error) => {
+        console.log(error);
+      },
+    }
+  );
 
-  // 수정 모드로 전환
-  const handleChangeEditMode = useCallback(() => {
-    handleChangeMode('edit');
-  }, [handleChangeMode]);
+  const [isShowing, setIsShowing] = useState<boolean>(false);
 
-  // 기본 모드로 전환
-  const handleChangeDefaultMode = useCallback(() => {
-    handleChangeMode(null);
-  }, [handleChangeMode]);
+  const handleShowingModal = (value: boolean) => {
+    setIsShowing(value);
+  };
 
-  if (exerciseList.state === 'hasError') {
-    return <div>Error</div>;
-  }
-  if (exerciseList.state === 'loading') {
+  const [selectedExercises, setSelectedExercises] = useRecoilState(
+    selectedExercisesState
+  );
+  // 전체 선택 여부
+  const isAllSelected =
+    exercises &&
+    !!exercises.length &&
+    selectedExercises.length === exercises.length;
+
+  // 한개이상 선택한 경우 indeterminate
+  const isIndeterminate =
+    exercises &&
+    !!exercises.length &&
+    !!selectedExercises.length &&
+    !isAllSelected;
+
+  // 전체 선택 or 전체 선택 해제
+  const handleAllSelected = () => {
+    // 운동 데이터가 있을 때
+    if (exercises) {
+      if (!isAllSelected) {
+        setSelectedExercises(exercises);
+      } else {
+        setSelectedExercises([]);
+      }
+    }
+  };
+
+  const handleRemoveSelectedExercises = () => {
+    if (
+      window.confirm(
+        `운동 목록에서 ${selectedExercises.length}개의 운동을 삭제할까요?`
+      )
+    ) {
+      const exercisesIds = selectedExercises.map((exercise) => exercise._id);
+
+      removeExercises({
+        exercisesIds,
+      });
+    }
+  };
+
+  if (isLoading) {
     return <div>운동 목록 불러오는 중...</div>;
   }
 
   return (
     <div>
-      <div className="flex justify-between items-center border-0 border-y border-gray-300 border-solid">
-        {mode === 'edit' ? (
-          <>
-            <div>
-              <Button type="link">전체 선택</Button>
-            </div>
-            <Button type="link" onClick={handleChangeDefaultMode}>
-              완료
-            </Button>
-          </>
-        ) : (
-          <>
-            <span></span>
-            <Button type="link" onClick={handleChangeEditMode}>
-              편집
-            </Button>
-          </>
-        )}
-      </div>
       <AddItem
         text="새로운 운동 추가..."
         className="py-2"
-        onClick={() => showModal('add')}
+        onClick={() => handleShowingModal(true)}
       />
 
-      {selectedList.length > 0 && (
-        <Button
-          type="text"
-          danger
-          onClick={() => deleteManyExercise({ exerciseList: selectedList })}
-        >
-          선택 삭제
-        </Button>
-      )}
-      {!exerciseList.contents.length ? (
+      {/* 리스트 헤더 (임시) */}
+      <div className="flex justify-between items-center h-10">
+        <div>
+          <Checkbox
+            className="pl-4"
+            indeterminate={isIndeterminate}
+            checked={isAllSelected}
+            onChange={handleAllSelected}
+          >
+            전체 선택
+          </Checkbox>
+          {!!selectedExercises.length && (
+            <span className="font-bold">
+              {selectedExercises.length}개 선택됨
+            </span>
+          )}
+        </div>
+
+        {!!selectedExercises.length && (
+          <Button type="text" danger onClick={handleRemoveSelectedExercises}>
+            선택 삭제
+          </Button>
+        )}
+      </div>
+
+      {/* 리스트 */}
+      {!exercises?.length ? (
         <p>추가한 운동이 없습니다.</p>
       ) : (
         <ul className="list-none m-0 p-0">
-          {exerciseList.contents.map((exercise, index) => {
-            const { exerciseName, exerciseType, parts, recordTypes, isAssist } =
-              exercise;
+          {exercises.map((exercise, index) => {
             return (
               <li
                 key={index}
-                className="flex justify-between items-stretch my-1 py-3 border-0 border-t border-gray-200 border-solid"
+                className="my-1 py-3 border-0 border-t border-gray-200 border-solid"
               >
-                <Checkbox
-                  className="px-4"
-                  checked={selectedList.some(
-                    (item) => item._id === exercise._id
-                  )}
-                  onChange={() => handleSelectedItem(exercise)}
-                />
-                <Exercise
-                  className="grow"
-                  exerciseName={exerciseName}
-                  exerciseType={exerciseType}
-                  parts={parts}
-                  recordTypes={recordTypes}
-                  isAssist={isAssist}
-                />
-                <Button
-                  type="text"
-                  onClick={() => {
-                    setSelectEditExercise(exercise);
-                    showModal('edit');
-                  }}
-                >
-                  수정
-                </Button>
-                <Button
-                  type="text"
-                  danger
-                  onClick={() => {
-                    if (
-                      window.confirm(`${exerciseName} 항목을 삭제하시겠습니까?`)
-                    ) {
-                      deleteExerciseById({
-                        id: exercise._id as string,
-                      });
-                    }
-                  }}
-                >
-                  삭제
-                </Button>
+                <ExerciseItem exerciseData={exercise} />
               </li>
             );
           })}
         </ul>
+      )}
+
+      {isShowing && (
+        <AddExerciseModal
+          open={isShowing}
+          onClose={() => handleShowingModal(false)}
+        />
       )}
     </div>
   );

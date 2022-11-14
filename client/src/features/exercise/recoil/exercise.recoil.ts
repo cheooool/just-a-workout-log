@@ -1,30 +1,7 @@
-import { atom, selector } from 'recoil';
-import ExerciseService, { ExerciseDataType } from '../services/ExerciseService';
+import { atom } from 'recoil';
+import { IExerciseResponse } from '../../../api/exerciseApi';
 
-export const allListLoader = selector<ExerciseDataType[]>({
-  key: 'allListLoader',
-  get: async () => {
-    try {
-      const response = await ExerciseService.getAll();
-      return response.data;
-    } catch (error) {
-      console.error(error);
-      return [];
-    }
-  },
-});
-
-export const exerciseListState = atom<ExerciseDataType[]>({
-  key: 'exerciseListState',
-  default: allListLoader,
-});
-
-export const exerciseModalState = atom<'add' | 'edit' | null>({
-  key: 'exerciseModalState',
-  default: null,
-});
-
-export const selectEditExerciseState = atom<ExerciseDataType | null>({
-  key: 'selectEditExerciseState',
-  default: null,
+export const selectedExercisesState = atom<IExerciseResponse[]>({
+  key: 'selectedExercisesState',
+  default: [],
 });

@@ -10,13 +10,13 @@ import {
 } from 'antd';
 import classnames from 'classnames';
 import {
-  ExerciseDataType,
-  EXERCISE_DEFAULT_DATA,
-} from '../../services/ExerciseService';
+  EXERCISE_TYPE_DATA,
+  IExerciseRequest,
+} from '../../../../api/exerciseApi';
 
 export type ExerciseFormCustomProps = {
-  exerciseData?: ExerciseDataType | null;
-  onSubmit?: ({ formData }: { formData: ExerciseDataType }) => void;
+  exerciseData?: IExerciseRequest | null;
+  onSubmit?: ({ formData }: { formData: IExerciseRequest }) => void;
 };
 export type ExerciseFormAttributes = FormProps;
 
@@ -29,7 +29,7 @@ const ExerciseForm: React.FC<ExerciseFormProps> = ({
   ...props
 }) => {
   // 폼 밸리데이션 (임시)
-  const isValid = useCallback((values: ExerciseDataType) => {
+  const isValid = useCallback((values: IExerciseRequest) => {
     const { exerciseType, exerciseName, parts, recordTypes } = values;
     if (!exerciseType) {
       alert('운동 타입을 선택해주세요.');
@@ -52,7 +52,7 @@ const ExerciseForm: React.FC<ExerciseFormProps> = ({
   }, []);
 
   const handleSubmit = useCallback(
-    (values: ExerciseDataType) => {
+    (values: IExerciseRequest) => {
       if (!isValid(values)) {
         return false;
       }
@@ -67,7 +67,7 @@ const ExerciseForm: React.FC<ExerciseFormProps> = ({
     <Form
       {...props}
       layout="vertical"
-      initialValues={exerciseData ?? EXERCISE_DEFAULT_DATA}
+      initialValues={exerciseData ?? {}}
       onFinish={handleSubmit}
     >
       <FormField
@@ -82,8 +82,8 @@ const ExerciseForm: React.FC<ExerciseFormProps> = ({
         ]}
       >
         <Radio.Group optionType="button" buttonStyle="solid">
-          <Radio.Button value="0">웨이트</Radio.Button>
-          <Radio.Button value="1">맨몸운동</Radio.Button>
+          <Radio.Button value="0">{EXERCISE_TYPE_DATA['0']}</Radio.Button>
+          <Radio.Button value="1">{EXERCISE_TYPE_DATA['1']}</Radio.Button>
         </Radio.Group>
       </FormField>
       <FormField

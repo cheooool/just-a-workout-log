@@ -1,19 +1,25 @@
-import {
-  ExerciseDataType,
-  EXERCISE_TYPE_DATA,
-} from '../../services/ExerciseService';
+import { IExerciseResponse } from '../../../../api/exerciseApi';
 
-export type ExerciseCustomProps = ExerciseDataType;
-export type ExerciseAttributes = React.HTMLAttributes<HTMLDivElement>;
-export type ExerciseProps = ExerciseCustomProps & ExerciseAttributes;
-const Exercise: React.FC<ExerciseProps> = ({
-  exerciseName,
-  exerciseType,
-  parts,
-  recordTypes,
-  isAssist,
-  ...props
-}) => {
+const EXERCISE_TYPE_DATA: {
+  [key: string]: string;
+} = {
+  '0': '웨이트',
+  '1': '맨몸운동',
+};
+
+export type ExerciseInfoType = Omit<
+  IExerciseResponse,
+  '_id' | 'userId' | 'createdAt' | 'isAssist'
+>;
+
+export type ExerciseDataCustomProps = {
+  info: ExerciseInfoType;
+};
+export type ExerciseDataAttributes = React.HTMLAttributes<HTMLDivElement>;
+export type ExerciseDataProps = ExerciseDataCustomProps &
+  ExerciseDataAttributes;
+const ExerciseData: React.FC<ExerciseDataProps> = ({ info, ...props }) => {
+  const { parts, exerciseName, exerciseType, recordTypes } = info;
   return (
     <div {...props}>
       {/* 운동 정보 */}
@@ -46,4 +52,4 @@ const Exercise: React.FC<ExerciseProps> = ({
   );
 };
 
-export default Exercise;
+export default ExerciseData;
