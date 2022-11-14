@@ -1,5 +1,9 @@
 import http from '../lib/http-common';
 
+export const EXERCISE_TYPE_DATA = {
+  '0': '웨이트',
+  '1': '맨몸',
+};
 export interface IExerciseRequest {
   // 운동 타입 (0: 웨이트, 1: 맨몸)
   exerciseType: string;
