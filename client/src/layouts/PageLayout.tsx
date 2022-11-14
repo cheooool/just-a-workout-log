@@ -18,7 +18,7 @@ const PageLayout: React.FC<PagelayoutProps> = ({
       <PageHeader
         {...pageHeaderProps}
         className={classnames(
-          'site-page-header px-4 py-1 border-0 border-b border-gray-200 border-solid',
+          'site-page-header px-4 py-1 ',
           pageHeaderProps?.className
         )}
       />
