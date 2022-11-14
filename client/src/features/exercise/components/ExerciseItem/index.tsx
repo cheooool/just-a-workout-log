@@ -25,6 +25,11 @@ const Exercise: React.FC<ExerciseProps> = ({ exerciseData, ...props }) => {
       onSuccess() {
         queryClient.invalidateQueries(['exercises']);
         console.log('Success delete exercise');
+
+        // 체크 상태에서 삭제했을 경우 선택 해제
+        if (isChecked) {
+          handleUnselected();
+        }
       },
       onError(error) {
         console.log(error);
@@ -53,26 +58,37 @@ const Exercise: React.FC<ExerciseProps> = ({ exerciseData, ...props }) => {
     setIsShowing(value);
   }, []);
 
+  // 체크 여부
   const isChecked = useMemo(() => {
     return selectedExercises.some((item) => item._id === exerciseData._id);
   }, [exerciseData._id, selectedExercises]);
 
-  // 체크 핸들러
-  const handleSelectedItem = useCallback(() => {
+  // 셀렉트 이벤트
+  const handleSelected = useCallback(() => {
+    setSelectedExercises((state) => [...state, exerciseData]);
+  }, [exerciseData, setSelectedExercises]);
+
+  // 언셀렉트 이벤트
+  const handleUnselected = useCallback(() => {
+    // 담겨 있을 경우 제거
+    const findIndex = selectedExercises.findIndex(
+      (item) => item._id === exerciseData._id
+    );
+    setSelectedExercises((state) => [
+      ...state.slice(0, findIndex),
+      ...state.slice(findIndex + 1),
+    ]);
+  }, [exerciseData, selectedExercises, setSelectedExercises]);
+
+  // 토글 셀렉트 이벤트
+  const toggleSelected = useCallback(() => {
     // 리스트에 담겨 있지 않을 경우 추가
     if (!isChecked) {
-      setSelectedExercises((state) => [...state, exerciseData]);
+      handleSelected();
     } else {
-      // 담겨 있을 경우 제거
-      const findIndex = selectedExercises.findIndex(
-        (item) => item._id === exerciseData._id
-      );
-      setSelectedExercises((state) => [
-        ...state.slice(0, findIndex),
-        ...state.slice(findIndex + 1),
-      ]);
+      handleUnselected();
     }
-  }, [exerciseData, isChecked, selectedExercises, setSelectedExercises]);
+  }, [handleSelected, handleUnselected, isChecked]);
 
   return (
     <div {...props}>
@@ -80,7 +96,7 @@ const Exercise: React.FC<ExerciseProps> = ({ exerciseData, ...props }) => {
         <Checkbox
           className="px-4"
           checked={isChecked}
-          onChange={handleSelectedItem}
+          onChange={toggleSelected}
         />
         <ExerciseInfo className="grow" info={exerciseData} />
 
