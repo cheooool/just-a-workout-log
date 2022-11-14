@@ -104,12 +104,6 @@ const ExerciseList = () => {
 
   return (
     <div>
-      <AddItem
-        text="새로운 운동 추가..."
-        className="py-2"
-        onClick={() => handleShowingModal(true)}
-      />
-
       {/* 리스트 헤더 (임시) */}
       <div className="flex justify-between items-center h-10">
         <div>
