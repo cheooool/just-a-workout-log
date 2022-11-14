@@ -10,6 +10,8 @@ import {
 import { useRecoilState } from 'recoil';
 import { selectedExercisesState } from '../../recoil/exercise.recoil';
 
+import classnames from 'classnames';
+
 import ExerciseItem from '../ExerciseItem';
 import AddExerciseModal from '../AddExerciseModal';
 
@@ -104,7 +106,11 @@ const ExerciseList = () => {
   return (
     <div>
       {/* 리스트 헤더 (임시) */}
-      <div className="sticky top-0 left-0 w-full px-4 pb-2 bg-white z-10">
+      <div
+        className={classnames('px-4 pb-2 bg-white', {
+          'sticky top-0 left-0 w-full z-10': !!selectedExercises.length,
+        })}
+      >
         {!!selectedExercises.length && (
           <div className="flex justify-between items-center py-4">
             <div>
