@@ -143,20 +143,20 @@ export const deleteExercise = async (req: Request, res: Response) => {
   }
 };
 
-export const deleteManyExercise = async (req: Request, res: Response) => {
+export const deleteExercises = async (req: Request, res: Response) => {
   try {
     const { user } = req as CustomRequest;
     const { userId } = user;
 
-    const { ids } = req.body;
+    const { exercisesIds } = req.body;
 
     await Exercise.deleteMany({
       userId,
-      _id: ids,
+      _id: exercisesIds,
     });
 
     return res.status(200).json({
-      message: `${ids.length}의 운동이 삭제되었습니다.`,
+      message: `${exercisesIds.length}의 운동이 삭제되었습니다.`,
     });
   } catch (error) {
     return res.status(500).json({

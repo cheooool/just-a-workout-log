@@ -5,7 +5,7 @@ import {
   deleteExercise,
   updateExercise,
   createExercise,
-  deleteManyExercise,
+  deleteExercises,
 } from '../controllers/exercies';
 import { isLoggedIn } from '../middlewares/isLoggedIn';
 
@@ -16,6 +16,6 @@ router.post('/', isLoggedIn, createExercise);
 router.get('/:id', isLoggedIn, getExerciseById);
 router.put('/:id', isLoggedIn, updateExercise);
 router.delete('/:id', isLoggedIn, deleteExercise);
-router.delete('/', isLoggedIn, deleteManyExercise);
+router.delete('/', isLoggedIn, deleteExercises);
 
 export default router;
