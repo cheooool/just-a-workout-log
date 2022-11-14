@@ -14,6 +14,8 @@ import classnames from 'classnames';
 
 import ExerciseItem from '../ExerciseItem';
 import AddExerciseModal from '../AddExerciseModal';
+import { addExerciseToWorkoutFn } from '../../../../api/workoutApi';
+import moment from 'moment';
 
 export type ListModeType = 'edit' | null;
 
@@ -43,6 +45,24 @@ const ExerciseList = () => {
       onSuccess: () => {
         queryClient.invalidateQueries(['exercises']);
         console.log('Success remove exercises');
+      },
+      onError: (error) => {
+        console.log(error);
+      },
+    }
+  );
+
+  const { mutate: AddExerciseToWorkout } = useMutation(
+    ({
+      workoutDate,
+      exercisesIds,
+    }: {
+      workoutDate: string;
+      exercisesIds: string[];
+    }) => addExerciseToWorkoutFn({ workoutDate, exercisesIds }),
+    {
+      onSuccess: () => {
+        console.log('오늘 할 운동이 추가되었습니다.');
         setSelectedExercises([]);
       },
       onError: (error) => {
@@ -99,6 +119,13 @@ const ExerciseList = () => {
     }
   };
 
+  const handleAddExerciseToWorkout = () => {
+    AddExerciseToWorkout({
+      workoutDate: moment().format('YYYYMMDD'),
+      exercisesIds: selectedExercises.map((exercise) => exercise._id),
+    });
+  };
+
   if (isLoading) {
     return <div>운동 목록 불러오는 중...</div>;
   }
@@ -118,7 +145,9 @@ const ExerciseList = () => {
                 {selectedExercises.length}개 선택됨
               </span>
             </div>
-            <Button type="primary">운동 추가</Button>
+            <Button type="primary" onClick={handleAddExerciseToWorkout}>
+              운동 추가
+            </Button>
           </div>
         )}
         <div>
