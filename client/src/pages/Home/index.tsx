@@ -1,5 +1,11 @@
+import PageLayout from '../../layouts/PageLayout';
+
 const Home = () => {
-  return <div>Home</div>;
+  return (
+    <PageLayout>
+      <div>Home</div>
+    </PageLayout>
+  );
 };
 
 export default Home;

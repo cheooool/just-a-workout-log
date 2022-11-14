@@ -8,7 +8,7 @@ export const getExercises = async (req: Request, res: Response) => {
     const { userId } = user;
     const data = await Exercise.find({
       userId,
-    });
+    }).sort({ createdAt: -1 });
     return res.status(200).json(data);
   } catch (error) {
     return res.status(500).json({
@@ -134,6 +134,29 @@ export const deleteExercise = async (req: Request, res: Response) => {
 
     return res.status(200).json({
       message: '운동이 삭제되었습니다.',
+    });
+  } catch (error) {
+    return res.status(500).json({
+      error,
+      errorMessage: '운동 삭제 요청에 실패했습니다. 잠시 후 다시 시도해주세요.',
+    });
+  }
+};
+
+export const deleteExercises = async (req: Request, res: Response) => {
+  try {
+    const { user } = req as CustomRequest;
+    const { userId } = user;
+
+    const { exercisesIds } = req.body;
+
+    await Exercise.deleteMany({
+      userId,
+      _id: exercisesIds,
+    });
+
+    return res.status(200).json({
+      message: `${exercisesIds.length}의 운동이 삭제되었습니다.`,
     });
   } catch (error) {
     return res.status(500).json({

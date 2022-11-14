@@ -2,8 +2,8 @@ import React, { useCallback, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Form, Input, Button } from 'antd';
 
-import AuthService from '../services/AuthService';
-import useGuard from '../hooks/useGuard';
+import AuthService from '../../services/AuthService';
+import useGuard from '../../hooks/useGuard';
 
 const Register = () => {
   // 토큰 있을 경우 홈으로
