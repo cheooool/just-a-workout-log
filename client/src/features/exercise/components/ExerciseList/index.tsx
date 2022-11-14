@@ -10,7 +10,6 @@ import {
 import { useRecoilState } from 'recoil';
 import { selectedExercisesState } from '../../recoil/exercise.recoil';
 
-import AddItem from '../../../../components/AddItem';
 import ExerciseItem from '../ExerciseItem';
 import AddExerciseModal from '../AddExerciseModal';
 
@@ -105,10 +104,19 @@ const ExerciseList = () => {
   return (
     <div>
       {/* 리스트 헤더 (임시) */}
-      <div className="flex justify-between items-center h-10">
+      <div className="sticky top-0 left-0 w-full px-4 pb-2 bg-white z-10">
+        {!!selectedExercises.length && (
+          <div className="flex justify-between items-center py-4">
+            <div>
+              <span className="text-2xl font-bold">
+                {selectedExercises.length}개 선택됨
+              </span>
+            </div>
+            <Button type="primary">운동 추가</Button>
+          </div>
+        )}
         <div>
           <Checkbox
-            className="pl-4"
             indeterminate={isIndeterminate}
             checked={isAllSelected}
             onChange={handleAllSelected}
@@ -116,17 +124,15 @@ const ExerciseList = () => {
             전체 선택
           </Checkbox>
           {!!selectedExercises.length && (
-            <span className="font-bold">
-              {selectedExercises.length}개 선택됨
-            </span>
+            <Button
+              type="text"
+              danger
+              onClick={() => handleRemoveSelectedExercises()}
+            >
+              선택 삭제
+            </Button>
           )}
         </div>
-
-        {!!selectedExercises.length && (
-          <Button type="text" danger onClick={handleRemoveSelectedExercises}>
-            선택 삭제
-          </Button>
-        )}
       </div>
 
       {/* 리스트 */}
