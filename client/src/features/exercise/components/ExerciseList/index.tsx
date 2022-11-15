@@ -9,7 +9,7 @@ import {
 } from '../../../../api/exerciseApi';
 import { selectedExercisesState } from '../../recoil/exercise.recoil';
 
-import { selectFormattedDate } from '../../../workouts/recoil/workouts.recoil';
+import { selectFormattedDate } from '../../../workout/recoil/workouts.recoil';
 
 import classnames from 'classnames';
 
