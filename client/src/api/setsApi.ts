@@ -1,7 +1,7 @@
 import http from '../lib/http-common';
 import { IExerciseResponse } from './exerciseApi';
 
-export type SetsItem = {
+export type SetsItemDataType = {
   weight: string | number;
   reps: string | number;
 };
@@ -16,10 +16,10 @@ export interface ISetsResponse {
   userId: string;
   exercise: Pick<
     IExerciseResponse,
-    'exerciseName' | 'parts' | 'exerciseType' | 'isAssist'
+    'exerciseName' | 'parts' | 'exerciseType' | 'isAssist' | 'recordTypes'
   >;
   workoutDate: string;
-  list: SetsItem[];
+  list: SetsItemDataType[];
 }
 
 // 전체 운동 세트 목록 불러오기
@@ -48,14 +48,16 @@ export const createSetsFn = async ({
 };
 
 // 운동 세트 수정 (set1, set2...)
-export const updateSetsById = async ({
+export const updateSetsByIdFn = async ({
   id,
   list,
 }: {
   id: string;
-  list: SetsItem[];
+  list: SetsItemDataType[];
 }) => {
-  return await http.post(`/sets/${id}`, list);
+  return await http.post(`/sets/${id}`, {
+    list,
+  });
 };
 
 // 운동 세트 목록 삭제
