@@ -1,21 +1,22 @@
 import { Button, Checkbox } from 'antd';
 import { useState } from 'react';
 
+import { useRecoilState, useRecoilValue } from 'recoil';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   getAllExercisesFn,
   removeExercisesFn,
 } from '../../../../api/exerciseApi';
-
-import { useRecoilState } from 'recoil';
 import { selectedExercisesState } from '../../recoil/exercise.recoil';
+
+import { selectFormattedDate } from '../../../workouts/recoil/workouts.recoil';
 
 import classnames from 'classnames';
 
 import ExerciseItem from '../ExerciseItem';
 import AddExerciseModal from '../AddExerciseModal';
-import { addExerciseToWorkoutFn } from '../../../../api/workoutApi';
-import moment from 'moment';
+
+import { createSetsFn, ISetsRequest } from '../../../../api/setsApi';
 
 export type ListModeType = 'edit' | null;
 
@@ -52,18 +53,18 @@ const ExerciseList = () => {
     }
   );
 
-  const { mutate: AddExerciseToWorkout } = useMutation(
-    ({
-      workoutDate,
-      exercisesIds,
-    }: {
-      workoutDate: string;
-      exercisesIds: string[];
-    }) => addExerciseToWorkoutFn({ workoutDate, exercisesIds }),
+  // YYYYMMDD 날짜 포맷
+  const formattedDate = useRecoilValue(selectFormattedDate);
+  // 오늘 할 운동 추가 mutation
+  const { mutate: createSets } = useMutation(
+    ({ exerciseId }: { exerciseId: ISetsRequest['exerciseId'] }) =>
+      createSetsFn({ workoutDate: formattedDate, exerciseId }),
     {
       onSuccess: () => {
-        console.log('오늘 할 운동이 추가되었습니다.');
         setSelectedExercises([]);
+        console.log('오늘 할 운동이 추가되었습니다.');
+        // 운동 추가 후 sets query refetch
+        queryClient.refetchQueries(['sets', formattedDate]);
       },
       onError: (error) => {
         console.log(error);
@@ -119,10 +120,9 @@ const ExerciseList = () => {
     }
   };
 
-  const handleAddExerciseToWorkout = () => {
-    AddExerciseToWorkout({
-      workoutDate: moment().format('YYYYMMDD'),
-      exercisesIds: selectedExercises.map((exercise) => exercise._id),
+  const handleCreateSets = () => {
+    createSets({
+      exerciseId: selectedExercises.map((exercise) => exercise._id),
     });
   };
 
@@ -145,7 +145,7 @@ const ExerciseList = () => {
                 {selectedExercises.length}개 선택됨
               </span>
             </div>
-            <Button type="primary" onClick={handleAddExerciseToWorkout}>
+            <Button type="primary" onClick={handleCreateSets}>
               운동 추가
             </Button>
           </div>
