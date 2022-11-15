@@ -2,7 +2,6 @@ import { useQuery } from '@tanstack/react-query';
 import { useRecoilValue } from 'recoil';
 import { getSetsByDateFn } from '../../../../api/setsApi';
 import { selectFormattedDate } from '../../../workout/recoil/workouts.recoil';
-import SetsForm from '../SetsForm';
 import SetsItem from '../SetsItem';
 
 const SetsList = () => {
