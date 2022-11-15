@@ -25,7 +25,7 @@ export const getSets = async (req: Request, res: Response) => {
     // userId가 일치하는 세트 목록 가져오기
     const findSets = await Sets.find(filters).populate({
       path: 'exercise',
-      select: 'exerciseName exerciseType parts isAssist',
+      select: 'exerciseName exerciseType parts recordTypes isAssist',
     });
 
     return res.status(200).json(findSets);
