@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { CustomRequest } from '../middlewares/isLoggedIn';
-import Sets, { ISets } from '../models/sets';
+import Sets from '../models/Sets';
 
 // GET 사용자의 전체 운동 세트 불러오기
 export const getSets = async (req: Request, res: Response) => {
