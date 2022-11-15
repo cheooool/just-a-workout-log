@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
 import { CustomRequest } from '../middlewares/isLoggedIn';
-import Sets, { ISets } from '../models/Sets';
-import Workout from '../models/Workout';
+import Sets, { ISets } from '../models/sets';
 
 // GET 사용자의 전체 운동 세트 불러오기
 export const getSets = async (req: Request, res: Response) => {
@@ -24,7 +23,10 @@ export const getSets = async (req: Request, res: Response) => {
     }
 
     // userId가 일치하는 세트 목록 가져오기
-    const findSets = await Sets.find(filters);
+    const findSets = await Sets.find(filters).populate({
+      path: 'exercise',
+      select: 'exerciseName exerciseType parts isAssist',
+    });
 
     return res.status(200).json(findSets);
   } catch (error) {
@@ -37,48 +39,35 @@ export const getSets = async (req: Request, res: Response) => {
 };
 
 // POST 새로운 운동 세트 생성
+// exerciseId string인 경우 한개 배열일 경우 다중 생성
 export const createSets = async (req: Request, res: Response) => {
   try {
     const { user } = req as CustomRequest;
     const { userId } = user;
-    const { workoutDate, exerciseId } = req.body as Pick<
-      ISets,
-      'workoutDate' | 'exerciseId'
-    >;
+    const { workoutDate, exerciseId } = req.body;
 
-    // 세트를 추가할 워크아웃 찾기
-    let findWorkout = await Workout.findOne({
-      userId,
-      workoutDate,
-    });
-
-    // 워크아웃이 없을 경우 새로 생성
-    if (!findWorkout) {
-      findWorkout = await new Workout({
+    let newSets;
+    if (Array.isArray(exerciseId)) {
+      // Sets 배열 생성
+      const newSetsList = exerciseId.map((eid) => ({
         userId,
+        exercise: eid,
+        workoutDate,
+      }));
+
+      // Sets 도큐먼트 생성
+      newSets = await Sets.create(newSetsList);
+    } else {
+      // 신규 세트 생성
+      newSets = await new Sets({
+        userId,
+        exercise: exerciseId,
         workoutDate,
       });
-      await findWorkout.save();
+      // 세트 저장
+
+      await newSets.save();
     }
-
-    // 신규 세트 생성
-    const newSets = await new Sets({
-      userId,
-      exerciseId,
-      workoutDate,
-    });
-
-    // 세트 저장
-    await newSets.save();
-
-    // 생성한 세트 추가
-    await findWorkout.updateOne({
-      $push: {
-        list: {
-          setsId: newSets._id,
-        },
-      },
-    });
 
     return res.status(200).json(newSets);
   } catch (error) {
@@ -100,7 +89,7 @@ export const getSetsById = async (req: Request, res: Response) => {
       userId,
       _id: id,
     }).populate({
-      path: 'exerciseId',
+      path: 'exercise',
       select: '-userId-_id-__v',
     });
 
@@ -148,28 +137,6 @@ export const deleteSetsById = async (req: Request, res: Response) => {
     const { user } = req as CustomRequest;
     const { userId } = user;
     const { id } = req.params;
-    const { workoutDate } = req.body;
-
-    if (!workoutDate) {
-      return res.status(400).json({
-        errorMessage: '잘못된 요청입니다.',
-      });
-    }
-
-    // workout의 세트 제거
-    await Workout.updateOne(
-      {
-        userId,
-        workoutDate,
-      },
-      {
-        $pull: {
-          list: {
-            setsId: id,
-          },
-        },
-      }
-    );
 
     // 세트 제거
     await Sets.deleteOne({
