@@ -2,7 +2,7 @@ import { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import AuthGuard from './AuthGuard';
 
-const Home = lazy(() => import('../pages/Home'));
+const Workouts = lazy(() => import('../pages/Workouts'));
 const Exercises = lazy(() => import('../pages/Exercises'));
 const SignUp = lazy(() => import('../pages/SignUp'));
 const SignIn = lazy(() => import('../pages/SignIn'));
@@ -15,7 +15,7 @@ const RootRoutes = () => {
         element={
           <Suspense fallback={<div>loading...</div>}>
             <AuthGuard>
-              <Home />
+              <Workouts />
             </AuthGuard>
           </Suspense>
         }
