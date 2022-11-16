@@ -1,9 +1,12 @@
 import { Form, Input, FormProps } from 'antd';
-
-export type SetsFormProps = FormProps;
-const SetsForm: React.FC<SetsFormProps> = ({ ...props }) => {
+import { SetsItemDataType } from '../../../../api/setsApi';
+export type SetsFormCustomProps = {
+  setsData?: SetsItemDataType;
+};
+export type SetsFormProps = SetsFormCustomProps & FormProps;
+const SetsForm: React.FC<SetsFormProps> = ({ setsData, ...props }) => {
   return (
-    <Form {...props} layout="vertical">
+    <Form {...props} layout="vertical" initialValues={setsData ?? {}}>
       <Form.Item
         label="무게"
         name="weight"
