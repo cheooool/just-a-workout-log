@@ -1,17 +1,22 @@
 import { Button, Checkbox } from 'antd';
 import { useState } from 'react';
 
+import { useRecoilState, useRecoilValue } from 'recoil';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   getAllExercisesFn,
   removeExercisesFn,
 } from '../../../../api/exerciseApi';
-
-import { useRecoilState } from 'recoil';
 import { selectedExercisesState } from '../../recoil/exercise.recoil';
+
+import { selectFormattedDate } from '../../../workout/recoil/workouts.recoil';
+
+import classnames from 'classnames';
 
 import ExerciseItem from '../ExerciseItem';
 import AddExerciseModal from '../AddExerciseModal';
+
+import { createSetsFn, ISetsRequest } from '../../../../api/setsApi';
 
 export type ListModeType = 'edit' | null;
 
@@ -41,7 +46,25 @@ const ExerciseList = () => {
       onSuccess: () => {
         queryClient.invalidateQueries(['exercises']);
         console.log('Success remove exercises');
+      },
+      onError: (error) => {
+        console.log(error);
+      },
+    }
+  );
+
+  // YYYYMMDD 날짜 포맷
+  const formattedDate = useRecoilValue(selectFormattedDate);
+  // 오늘 할 운동 추가 mutation
+  const { mutate: createSets } = useMutation(
+    ({ exerciseId }: { exerciseId: ISetsRequest['exerciseId'] }) =>
+      createSetsFn({ workoutDate: formattedDate, exerciseId }),
+    {
+      onSuccess: () => {
         setSelectedExercises([]);
+        console.log('오늘 할 운동이 추가되었습니다.');
+        // 운동 추가 후 sets query refetch
+        queryClient.refetchQueries(['sets', formattedDate]);
       },
       onError: (error) => {
         console.log(error);
@@ -97,6 +120,12 @@ const ExerciseList = () => {
     }
   };
 
+  const handleCreateSets = () => {
+    createSets({
+      exerciseId: selectedExercises.map((exercise) => exercise._id),
+    });
+  };
+
   if (isLoading) {
     return <div>운동 목록 불러오는 중...</div>;
   }
@@ -104,7 +133,11 @@ const ExerciseList = () => {
   return (
     <div>
       {/* 리스트 헤더 (임시) */}
-      <div className="sticky top-0 left-0 w-full px-4 pb-2 bg-white z-10">
+      <div
+        className={classnames('px-4 pb-2 bg-white', {
+          'sticky top-0 left-0 w-full z-10': !!selectedExercises.length,
+        })}
+      >
         {!!selectedExercises.length && (
           <div className="flex justify-between items-center py-4">
             <div>
@@ -112,7 +145,9 @@ const ExerciseList = () => {
                 {selectedExercises.length}개 선택됨
               </span>
             </div>
-            <Button type="primary">운동 추가</Button>
+            <Button type="primary" onClick={handleCreateSets}>
+              운동 추가
+            </Button>
           </div>
         )}
         <div>

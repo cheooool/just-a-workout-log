@@ -7,7 +7,7 @@ export type SetType = {
 
 export interface ISets {
   userId: Types.ObjectId;
-  exerciseId: Types.ObjectId;
+  exercise: Types.ObjectId;
   workoutDate: string;
   list: SetType[];
 }
@@ -18,7 +18,7 @@ const SetsSchema = new mongoose.Schema<ISets>({
     ref: 'user',
     required: true,
   },
-  exerciseId: {
+  exercise: {
     type: Schema.Types.ObjectId,
     ref: 'exercise',
     required: true,
