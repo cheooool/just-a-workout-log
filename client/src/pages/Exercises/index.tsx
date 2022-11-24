@@ -13,7 +13,7 @@ const Exercises = () => {
 
   return (
     <PageLayout
-      pageHeaderProps={{
+      headerProps={{
         title: '운동 목록',
         extra: (
           <Button

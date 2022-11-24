@@ -14,7 +14,7 @@ const Workouts = () => {
 
   return (
     <PageLayout
-      pageHeaderProps={{
+      headerProps={{
         title: '오늘의 운동',
         extra: (
           <Button
@@ -27,18 +27,20 @@ const Workouts = () => {
         ),
       }}
     >
-      <Calendar />
-      <SetsList />
+      <div>
+        <Calendar />
+        <SetsList />
 
-      {isShowing && (
-        <Modal
-          className="top-0"
-          open={isShowing}
-          onCancel={() => handleShowingModal(false)}
-        >
-          <ExerciseList />
-        </Modal>
-      )}
+        {isShowing && (
+          <Modal
+            className="top-0"
+            open={isShowing}
+            onCancel={() => handleShowingModal(false)}
+          >
+            <ExerciseList />
+          </Modal>
+        )}
+      </div>
     </PageLayout>
   );
 };
