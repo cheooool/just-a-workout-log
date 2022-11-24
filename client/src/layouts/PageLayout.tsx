@@ -19,7 +19,7 @@ const PageLayout: React.FC<PagelayoutProps> = ({
   return (
     <div
       className={classnames(
-        'flex flex-1 w-full h-screen max-w-[420px] mx-auto bg-white',
+        'flex flex-1 w-full h-screen max-w-[420px] mx-auto',
         className
       )}
       {...props}
@@ -27,12 +27,12 @@ const PageLayout: React.FC<PagelayoutProps> = ({
       <div className="flex flex-col flex-1">
         <Header
           {...headerProps}
-          className={classnames('sticky top-0 w-full')}
+          className={classnames('sticky top-0 z-10 w-full')}
         />
         {useNav && <Nav />}
         <section
           className={classnames(
-            'flex flex-col flex-1 px-10',
+            'flex flex-col flex-1 px-4 bg-white',
             useNav ? 'pb-12' : ''
           )}
         >

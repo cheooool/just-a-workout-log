@@ -135,7 +135,7 @@ const ExerciseList = () => {
       {/* 리스트 헤더 (임시) */}
       <div
         className={classnames('px-4 pb-2 bg-white', {
-          'sticky top-0 left-0 w-full z-10': !!selectedExercises.length,
+          'sticky top-[3.5rem] left-0 w-full z-10': !!selectedExercises.length,
         })}
       >
         {!!selectedExercises.length && (

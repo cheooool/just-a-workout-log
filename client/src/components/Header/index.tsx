@@ -6,7 +6,7 @@ const Header: React.FC<HeaderProps> = ({ className, ...props }) => {
   return (
     <PageHeader
       {...props}
-      className={classnames('site-page-header px-4 py-2', className)}
+      className={classnames('site-page-header px-4 py-2 bg-white', className)}
     />
   );
 };

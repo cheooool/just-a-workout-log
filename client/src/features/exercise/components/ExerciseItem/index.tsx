@@ -100,7 +100,7 @@ const Exercise: React.FC<ExerciseProps> = ({ exerciseData, ...props }) => {
         />
         <ExerciseInfo className="grow" info={exerciseData} />
 
-        <div>
+        <div className="flex">
           <Button type="text" onClick={() => handleShowingModal(true)}>
             수정
           </Button>

@@ -8,7 +8,7 @@ const SignIn = () => {
       }}
       useNav={false}
     >
-      <div className="flex flex-1 justify-center items-center">
+      <div className="flex flex-1 justify-center items-center px-8">
         <Login className="w-full" />
       </div>
     </PageLayout>

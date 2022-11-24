@@ -8,7 +8,7 @@ const SignUp = () => {
       }}
       useNav={false}
     >
-      <div className="flex flex-1 justify-center items-center">
+      <div className="flex flex-1 justify-center items-center px-8">
         <Register className="w-full" />
       </div>
     </PageLayout>
