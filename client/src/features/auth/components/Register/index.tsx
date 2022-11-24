@@ -1,11 +1,13 @@
 import React, { useCallback, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Form, Input, Button } from 'antd';
+import { Link, useNavigate } from 'react-router-dom';
+import { Form, Input, Button, Typography } from 'antd';
 
 import AuthService from '../../services/AuthService';
 import useGuard from '../../hooks/useGuard';
 
-const Register = () => {
+const Register: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
+  ...props
+}) => {
   // 토큰 있을 경우 홈으로
   useGuard();
   const navigate = useNavigate();
@@ -59,7 +61,7 @@ const Register = () => {
   }, [formData, navigate]);
 
   return (
-    <div className="max-w-[320px] mx-auto">
+    <div {...props}>
       <Form layout="vertical" onFinish={handleSubmit}>
         <Form.Item
           label="Username"
@@ -109,6 +111,9 @@ const Register = () => {
           </Button>
         </Form.Item>
       </Form>
+      <Typography>
+        이미 계정이 있으신가요? <Link to="/signin">로그인</Link>
+      </Typography>
     </div>
   );
 };

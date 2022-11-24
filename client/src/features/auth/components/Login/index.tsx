@@ -1,11 +1,13 @@
 import React, { useCallback, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Form, Input, Button } from 'antd';
+import { Link, useNavigate } from 'react-router-dom';
+import { Form, Input, Button, Typography } from 'antd';
 
 import AuthService from '../../services/AuthService';
 import useGuard from '../../hooks/useGuard';
 
-const Login = () => {
+const Login: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
+  ...props
+}) => {
   // 토큰 있을 경우 홈으로
   useGuard();
   const navigate = useNavigate();
@@ -54,7 +56,7 @@ const Login = () => {
   }, [formData, navigate]);
 
   return (
-    <div className="max-w-[320px] mx-auto">
+    <div {...props}>
       <Form layout="vertical" onFinish={handleSubmit}>
         <Form.Item
           label="Username"
@@ -92,6 +94,9 @@ const Login = () => {
           </Button>
         </Form.Item>
       </Form>
+      <Typography>
+        아이디가 없으신가요? <Link to="/signup">가입하기</Link>
+      </Typography>
     </div>
   );
 };
