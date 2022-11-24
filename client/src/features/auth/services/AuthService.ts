@@ -11,9 +11,9 @@ const getToken = (): string | null => {
 const setToken = (token: string) => {
   if (token) {
     localStorage.setItem('token', token);
-    http.defaults.headers.common['authorization'] = `Bearer ${token}`;
+    http.defaults.headers['Authorization'] = `Bearer ${token}`;
   } else {
-    delete http.defaults.headers.common['authorization'];
+    delete http.defaults.headers['Authorization'];
   }
 };
 
