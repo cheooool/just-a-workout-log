@@ -6,13 +6,19 @@
 
 ### 기술 스택
 
-- react
 - typescript
+- react
+- react-query
+- recoil
+- tailwind
+- antd
+- axios
+- moment
 
 ## Backend
 
 ### 기술 스택
 
+- typescript
 - express
 - mongodb/mongoose
-- typescript
