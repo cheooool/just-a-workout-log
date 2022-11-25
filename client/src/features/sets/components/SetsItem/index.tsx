@@ -1,7 +1,11 @@
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Button, Card, CardProps, Modal } from 'antd';
+import { Button, Modal } from 'antd';
+import { AiOutlinePlus } from 'react-icons/ai';
 import { useRecoilValue } from 'recoil';
+import { BsThreeDots } from 'react-icons/bs';
+import { RiDeleteBin5Line } from 'react-icons/ri';
+
 import {
   deleteSetsByIdFn,
   ISetsResponse,
@@ -9,17 +13,29 @@ import {
   updateSetsByIdFn,
 } from '../../../../api/setsApi';
 import { selectFormattedDate } from '../../../workout/recoil/workouts.recoil';
-import SetsTable from '../SetsTable';
+import SetsData from '../SetsData';
 import SetsForm from '../SetsForm';
+import useModal from '../../../../hooks/useModal';
+import ActionSheet from '../../../../components/ActionSheet';
 
 export type SetsItemCustomProps = {
   data: ISetsResponse;
 };
 
-export type SetsItemProps = CardProps & SetsItemCustomProps;
+export type SetsItemProps = SetsItemCustomProps;
 
 const SetsItem: React.FC<SetsItemProps> = ({ data, ...props }) => {
   const { _id: id, exercise, list } = data;
+  const {
+    isShowing: isShowingAddModal,
+    showModal: showAddModal,
+    hideModal: hideAddModal,
+  } = useModal(false);
+  const {
+    isShowing: isShowingActionSheet,
+    showModal: showActionSheet,
+    hideModal: hideActionSheet,
+  } = useModal(false);
   const formattedDate = useRecoilValue(selectFormattedDate);
   const queryClient = useQueryClient();
 
@@ -37,20 +53,13 @@ const SetsItem: React.FC<SetsItemProps> = ({ data, ...props }) => {
     }
   );
 
-  const handleDeleteSets = useCallback(() => {
-    if (window.confirm(`${exercise.exerciseName} 운동 기록을 삭제할까요?`)) {
-      deleteSetsById();
-    }
-  }, [deleteSetsById, exercise.exerciseName]);
-
-  const [isShowAddModal, setIsShowAddModal] = useState<boolean>(false);
   const { mutate: updateSets } = useMutation(
     ({ list }: { list: SetsItemDataType[] }) => updateSetsByIdFn({ id, list }),
     {
       onSuccess: () => {
         queryClient.invalidateQueries(['sets', formattedDate]);
         console.log('Success update sets data');
-        handleHideAddModal();
+        hideAddModal();
       },
       onError: (error) => {
         console.log(error);
@@ -58,13 +67,7 @@ const SetsItem: React.FC<SetsItemProps> = ({ data, ...props }) => {
     }
   );
 
-  const handleShowAddModal = useCallback(() => {
-    setIsShowAddModal(true);
-  }, []);
-  const handleHideAddModal = useCallback(() => {
-    setIsShowAddModal(false);
-  }, []);
-
+  // 세트 데이터 추가
   const handleSubmitAddData = useCallback(
     (values: SetsItemDataType) => {
       const updatedList = [...list, values];
@@ -76,35 +79,67 @@ const SetsItem: React.FC<SetsItemProps> = ({ data, ...props }) => {
     [list, updateSets]
   );
 
+  // 운동 삭제
+  const handleDeleteSets = useCallback(() => {
+    hideActionSheet();
+    if (window.confirm(`${exercise.exerciseName} 운동 기록을 삭제할까요?`)) {
+      deleteSetsById();
+    }
+  }, [deleteSetsById, exercise.exerciseName, hideActionSheet]);
+
   return (
     <>
-      <Card
-        {...props}
-        title={`${exercise.parts} | ${exercise.exerciseName}`}
-        extra={
-          <Button type="text" danger onClick={handleDeleteSets}>
-            삭제
-          </Button>
-        }
-      >
-        <SetsTable
+      <div className="py-4">
+        {/* 운동 세트 헤더 */}
+        <div className="flex justify-between items-center mb-2">
+          <span className="font-bold text-xl">{exercise.exerciseName}</span>
+          <Button
+            type="text"
+            className="flex justify-center items-center"
+            shape="circle"
+            icon={<BsThreeDots />}
+            title={`${exercise.exerciseName} 메뉴 버튼`}
+            onClick={showActionSheet}
+          />
+        </div>
+
+        {/* 운동 세트 */}
+        <SetsData
           setsId={id}
           title={exercise.exerciseName}
           headers={exercise.recordTypes}
           list={list}
         />
+
+        {/* 세트 추가 버튼 */}
         <Button
-          type="primary"
-          className="w-full mt-5"
-          onClick={handleShowAddModal}
+          className="w-full flex justify-center items-center my-2"
+          icon={<AiOutlinePlus className="mr-2" />}
+          onClick={showAddModal}
         >
           세트 추가
         </Button>
-      </Card>
+      </div>
 
-      {isShowAddModal && (
+      {isShowingActionSheet && (
+        <ActionSheet
+          buttons={[
+            {
+              buttonProps: {
+                danger: true,
+                onClick: handleDeleteSets,
+              },
+              icon: <RiDeleteBin5Line size={16} />,
+              text: `${exercise.exerciseName} 삭제`,
+            },
+          ]}
+          onCancel={hideActionSheet}
+        />
+      )}
+
+      {isShowingAddModal && (
         <Modal
-          open={isShowAddModal}
+          open={isShowingAddModal}
           title={`${exercise.exerciseName} - ${list.length + 1} 세트`}
           okButtonProps={{
             htmlType: 'submit',
@@ -112,7 +147,7 @@ const SetsItem: React.FC<SetsItemProps> = ({ data, ...props }) => {
           }}
           okText="추가하기"
           cancelText="취소"
-          onCancel={handleHideAddModal}
+          onCancel={hideAddModal}
         >
           <SetsForm id="addForm" onFinish={handleSubmitAddData} />
         </Modal>
