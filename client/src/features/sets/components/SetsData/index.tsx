@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
-import { Button, Form, Modal } from 'antd';
+import { Button, Checkbox, Form, Modal } from 'antd';
+import { RiDeleteBin5Line, RiEditBoxLine } from 'react-icons/ri';
 
 import { IExerciseResponse } from '../../../../api/exerciseApi';
 import {
@@ -11,20 +12,16 @@ import SetsForm from '../SetsForm';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRecoilValue } from 'recoil';
 import { selectFormattedDate } from '../../../workout/recoil/workouts.recoil';
+import useModal from '../../../../hooks/useModal';
 
-const RECORD_TYPE_DATA = {
-  weight: '무게',
-  reps: '횟수',
-};
-
-export type SetsTableCustomProps = {
+export type SetsDataCustomProps = {
   setsId: string;
   title: string;
   headers: IExerciseResponse['recordTypes'];
   list: ISetsResponse['list'];
 };
-export type SetsTableProps = SetsTableCustomProps;
-const SetsTable: React.FC<SetsTableProps> = ({
+export type SetsDataProps = SetsDataCustomProps;
+const SetsData: React.FC<SetsDataProps> = ({
   setsId,
   title,
   headers,
@@ -32,7 +29,12 @@ const SetsTable: React.FC<SetsTableProps> = ({
   ...props
 }) => {
   const [editForm] = Form.useForm();
-  const [isShowEditModal, setIsShowEditModal] = useState<boolean>(false);
+  const {
+    isShowing: isShowingEditModal,
+    showModal: showEditModal,
+    hideModal: hideEditModal,
+  } = useModal(false);
+
   const [updateIndex, setUpdateIndex] = useState<number>(-1);
 
   const queryClient = useQueryClient();
@@ -55,18 +57,18 @@ const SetsTable: React.FC<SetsTableProps> = ({
   // Edit modal show
   const handleShowEditModal = useCallback(
     ({ idx, data }: { idx: number; data: SetsItemDataType }) => {
-      setIsShowEditModal(true);
+      showEditModal();
       setUpdateIndex(idx);
       editForm.setFieldsValue(data);
     },
-    [editForm]
+    [editForm, showEditModal]
   );
 
   // Edit modal hide
   const handleHideEditModal = useCallback(() => {
-    setIsShowEditModal(false);
+    hideEditModal();
     setUpdateIndex(-1);
-  }, []);
+  }, [hideEditModal]);
 
   // Delete Sets list with query
   const handleDeleteSetsData = useCallback(
@@ -101,56 +103,50 @@ const SetsTable: React.FC<SetsTableProps> = ({
     return null;
   }
   return (
-    <div className="px-5">
-      <table className="w-full border-collapse text-center">
-        <colgroup>
-          {new Array(headers.length + 1).fill(null).map((_, idx, array) => (
-            <col key={idx} width={`${100 / array.length}%`} />
-          ))}
-        </colgroup>
-        <thead>
-          <tr>
-            <th scope="col">세트</th>
-            {headers.map((recordType) => (
-              <th key={recordType} scope="col">
-                {RECORD_TYPE_DATA[recordType]}
-              </th>
-            ))}
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {list.map((data, index) => (
-            <tr key={index}>
-              <td>{index + 1}세트</td>
-              {headers.map((recordType) => (
-                <td key={recordType}>{data[recordType]}</td>
-              ))}
-              <td>
-                <div className="flex">
-                  <Button
-                    type="text"
-                    onClick={() => handleShowEditModal({ idx: index, data })}
-                  >
-                    수정
-                  </Button>
-                  <Button
-                    type="text"
-                    danger
-                    onClick={() => handleDeleteSetsData({ idx: index })}
-                  >
-                    삭제
-                  </Button>
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <>
+      {list.map((data, index) => {
+        const numb = index + 1;
+        return (
+          <div
+            key={index}
+            className="flex flex-wrap justify-between items-center py-1 text-sm"
+          >
+            <div className="flex grow items-center">
+              <div className="basis-[24px]">
+                <Checkbox />
+              </div>
+              <div className="font-bold">{numb}세트</div>
+              <div className="flex items-center px-4 font-bold [&>span]:text-right [&>span]:basis-[60px] [&>span]:w-[60px] [&>span:first-child]:mr-6 ">
+                {data.weight && <span>{data.weight}kg</span>}
+                {data.reps && <span>{data.reps}회</span>}
+              </div>
+            </div>
+            <div className="flex items-center">
+              <Button
+                className="flex justify-center items-center"
+                type="text"
+                shape="circle"
+                icon={<RiEditBoxLine />}
+                title={`${title} - ${numb} 세트 수정 버튼`}
+                onClick={() => handleShowEditModal({ idx: index, data })}
+              />
+              <Button
+                className="flex justify-center items-center"
+                type="text"
+                danger
+                shape="circle"
+                icon={<RiDeleteBin5Line />}
+                title={`${title} - ${numb} 세트 삭제 버튼`}
+                onClick={() => handleDeleteSetsData({ idx: index })}
+              />
+            </div>
+          </div>
+        );
+      })}
 
-      {isShowEditModal && (
+      {isShowingEditModal && (
         <Modal
-          open={isShowEditModal}
+          open={isShowingEditModal}
           title={`${title} - ${updateIndex + 1} 세트`}
           okButtonProps={{
             htmlType: 'submit',
@@ -158,7 +154,7 @@ const SetsTable: React.FC<SetsTableProps> = ({
           }}
           okText="수정하기"
           cancelText="취소"
-          onCancel={handleHideEditModal}
+          onCancel={hideEditModal}
         >
           <SetsForm
             id="editForm"
@@ -167,8 +163,8 @@ const SetsTable: React.FC<SetsTableProps> = ({
           />
         </Modal>
       )}
-    </div>
+    </>
   );
 };
 
-export default SetsTable;
+export default SetsData;
