@@ -1,4 +1,6 @@
 import { Button, Checkbox } from 'antd';
+import { RiDeleteBin5Line, RiEditBoxLine } from 'react-icons/ri';
+import { BsThreeDots } from 'react-icons/bs';
 
 import {
   IExerciseResponse,
@@ -11,6 +13,8 @@ import { useCallback, useMemo, useState } from 'react';
 import EditExerciseModal from '../EditExerciseModal';
 import { useRecoilState } from 'recoil';
 import { selectedExercisesState } from '../../recoil/exercise.recoil';
+import useModal from '../../../../hooks/useModal';
+import ActionSheet from '../../../../components/ActionSheet';
 
 export type ExerciseCustomProps = {
   exerciseData: IExerciseResponse;
@@ -36,6 +40,12 @@ const Exercise: React.FC<ExerciseProps> = ({ exerciseData, ...props }) => {
       },
     }
   );
+  const {
+    isShowing: isShowingActionSheet,
+    showModal: showActionSheet,
+    hideModal: hideActionSheet,
+  } = useModal();
+
   // 모달 state
   const [isShowing, setIsShowing] = useState<boolean>(false);
   const [selectedExercises, setSelectedExercises] = useRecoilState(
@@ -101,12 +111,14 @@ const Exercise: React.FC<ExerciseProps> = ({ exerciseData, ...props }) => {
         <ExerciseInfo className="grow" info={exerciseData} />
 
         <div className="flex">
-          <Button type="text" onClick={() => handleShowingModal(true)}>
-            수정
-          </Button>
-          <Button type="text" danger onClick={handleDeleteBtn}>
-            삭제
-          </Button>
+          <Button
+            className="flex justify-center items-center"
+            size="small"
+            icon={<BsThreeDots />}
+            type="text"
+            shape="circle"
+            onClick={showActionSheet}
+          />
         </div>
       </div>
 
@@ -115,6 +127,35 @@ const Exercise: React.FC<ExerciseProps> = ({ exerciseData, ...props }) => {
           open={isShowing}
           exerciseData={exerciseData}
           onClose={() => handleShowingModal(false)}
+        />
+      )}
+
+      {isShowingActionSheet && (
+        <ActionSheet
+          buttons={[
+            {
+              buttonProps: {
+                danger: true,
+                onClick: () => {
+                  hideActionSheet();
+                  handleDeleteBtn();
+                },
+              },
+              icon: <RiDeleteBin5Line size={16} />,
+              text: '삭제',
+            },
+            {
+              buttonProps: {
+                onClick: () => {
+                  hideActionSheet();
+                  handleShowingModal(true);
+                },
+              },
+              icon: <RiEditBoxLine size={16} />,
+              text: '수정',
+            },
+          ]}
+          onCancel={hideActionSheet}
         />
       )}
     </div>
