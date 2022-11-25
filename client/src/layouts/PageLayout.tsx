@@ -19,7 +19,7 @@ const PageLayout: React.FC<PagelayoutProps> = ({
   return (
     <div
       className={classnames(
-        'flex flex-1 w-full h-screen max-w-[420px] mx-auto',
+        'flex flex-1 w-full max-w-[420px] mx-auto',
         className
       )}
       {...props}
