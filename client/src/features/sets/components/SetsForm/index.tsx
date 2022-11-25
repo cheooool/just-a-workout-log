@@ -18,7 +18,7 @@ const SetsForm: React.FC<SetsFormProps> = ({ setsData, ...props }) => {
           },
         ]}
       >
-        <Input type="number" />
+        <Input type="number" max={999} />
       </Form.Item>
       <Form.Item
         label="횟수"
@@ -31,7 +31,7 @@ const SetsForm: React.FC<SetsFormProps> = ({ setsData, ...props }) => {
           },
         ]}
       >
-        <Input type="number" />
+        <Input type="number" max={99} />
       </Form.Item>
     </Form>
   );
