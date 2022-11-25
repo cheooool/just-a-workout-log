@@ -150,24 +150,27 @@ const ExerciseList = () => {
             </Button>
           </div>
         )}
-        <div>
-          <Checkbox
-            indeterminate={isIndeterminate}
-            checked={isAllSelected}
-            onChange={handleAllSelected}
-          >
-            전체 선택
-          </Checkbox>
-          {!!selectedExercises.length && (
-            <Button
-              type="text"
-              danger
-              onClick={() => handleRemoveSelectedExercises()}
+
+        {!!exercises?.length && (
+          <div>
+            <Checkbox
+              indeterminate={isIndeterminate}
+              checked={isAllSelected}
+              onChange={handleAllSelected}
             >
-              선택 삭제
-            </Button>
-          )}
-        </div>
+              전체 선택
+            </Checkbox>
+            {!!selectedExercises.length && (
+              <Button
+                type="text"
+                danger
+                onClick={() => handleRemoveSelectedExercises()}
+              >
+                선택 삭제
+              </Button>
+            )}
+          </div>
+        )}
       </div>
 
       {/* 리스트 */}
