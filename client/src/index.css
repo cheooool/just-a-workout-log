@@ -6,3 +6,7 @@
 body {
   background: #eaeaea;
 }
+
+.scroll-fixed {
+  position: fixed;
+}
